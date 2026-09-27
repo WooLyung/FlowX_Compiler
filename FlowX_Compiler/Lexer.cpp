@@ -51,8 +51,23 @@ namespace flowx
 
     void Lexer::SkipWhitespace()
     {
-        while (!AtEnd() && std::isspace(Peek()))
-            Advance();
+        while (!AtEnd())
+        {
+            if (std::isspace(Peek()))
+            {
+                Advance();
+                continue;
+            }
+
+            if (Peek() == '/' && source_.size() - position_ >= 2 && source_[position_ + 1] == '/')
+            {
+                while (!AtEnd() && Peek() != '\r' && Peek() != '\n')
+                    Advance();
+                continue;
+            }
+
+            break;
+        }
     }
 
     Token Lexer::ReadIdentifier()
