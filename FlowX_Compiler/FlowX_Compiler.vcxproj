@@ -112,7 +112,8 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,11 +142,16 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DeclarationNode.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Lexer.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="ProgramNode.cpp" />
     <ClCompile Include="SourceReader.cpp" />
+    <ClCompile Include="StructDeclarationNode.cpp" />
+    <ClCompile Include="StructDeclarationNode.h" />
     <ClCompile Include="Token.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
@@ -157,7 +163,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lexer.h" />
-    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="ParseTreeNode.h" />
+    <ClInclude Include="ProgramNode.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="SourceReader.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="PrimitiveType.h" />

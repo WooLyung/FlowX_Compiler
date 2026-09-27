@@ -1,8 +1,8 @@
 #pragma once
-#include "stdafx.h"
+#include "pch.h"
 #include "Token.h"
 
-namespace flowx
+namespace flowx::lexer
 {
     class LexerError : public std::runtime_error
     {

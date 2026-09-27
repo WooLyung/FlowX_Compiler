@@ -1,8 +1,8 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Lexer.h"
 #include "PrimitiveType.h"
 
-namespace flowx
+namespace flowx::lexer
 {
     LexerError::LexerError(SourceLocation location, const std::string& message)
         : std::runtime_error(message), location_(location)

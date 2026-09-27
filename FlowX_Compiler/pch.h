@@ -11,3 +11,4 @@
 #include <filesystem>
 #include <span>
 #include <cctype>
+#include <memory>

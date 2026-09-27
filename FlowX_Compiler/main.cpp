@@ -1,7 +1,8 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "SourceReader.h"
 #include "Lexer.h"
 #include "Token.h"
+#include "Parser.h"
 
 int main(int argc, char* argv[])
 {
@@ -14,15 +15,24 @@ int main(int argc, char* argv[])
     try
     {
         flowx::SourceReader reader;
-        flowx::Lexer lexer(reader.ReadFile(argv[1]));
+        flowx::lexer::Lexer lexer(reader.ReadFile(argv[1]));
         const auto tokens = lexer.Tokenize();
         flowx::PrintTokens(tokens, std::cout);
+        flowx::parser::Parser parser(tokens);
+        parser.Parse();
     }
-    catch (const flowx::LexerError& error)
+    catch (const flowx::lexer::LexerError& error)
     {
         const auto location = error.Location();
         std::cerr << argv[1] << ':' << location.line << ':' << location.column 
             << ": lexer error: " << error.what() << '\n';
+        return 1;
+    }
+    catch (const flowx::parser::ParserError& error)
+    {
+        const auto location = error.Location();
+        std::cerr << argv[1] << ':' << location.line << ':' << location.column
+            << ": parser error: " << error.what() << '\n';
         return 1;
     }
     catch (const std::exception& error)

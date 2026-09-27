@@ -26,10 +26,22 @@
     <ClCompile Include="Lexer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Token.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClInclude Include="Lexer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ParseTreeNode.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramNode.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Token.h">
