@@ -11,6 +11,16 @@ namespace flowx::parser
             this->fields_.push_back(std::move(field));
     }
 
+    const std::string& StructDeclarationNode::GetIdentifier() const
+    {
+        return identifier_;
+    }
+
+    const std::vector<std::unique_ptr<FieldNode>>& StructDeclarationNode::GetFields() const
+    {
+        return fields_;
+    }
+
     std::string_view StructDeclarationNode::SymbolName() const noexcept
     {
         return "struct_declaration";

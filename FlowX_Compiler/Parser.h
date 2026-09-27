@@ -33,7 +33,7 @@ namespace flowx::parser
         const TypeName TypeName();
         const TypeReferenceKind PrimitiveType();
         const TypeModifierKind TypeModifier();
-        std::string Identifier();
+        const std::string Identifier();
 
         std::span<const Token> tokens_;
         std::size_t position_ = 0;

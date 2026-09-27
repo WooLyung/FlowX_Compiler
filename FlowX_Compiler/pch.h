@@ -12,3 +12,6 @@
 #include <span>
 #include <cctype>
 #include <memory>
+#include <optional>
+#include <map>
+#include <unordered_set>

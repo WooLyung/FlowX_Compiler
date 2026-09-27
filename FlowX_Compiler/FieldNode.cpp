@@ -8,6 +8,16 @@ namespace flowx::parser
     {
     }
 
+    const std::string& FieldNode::GetIdentifier() const
+    {
+        return identifier_;
+    }
+
+    const TypeReference& FieldNode::GetTypeReference() const
+    {
+        return typeReference_;
+    }
+
     std::string_view FieldNode::SymbolName() const noexcept
     {
         return "field";

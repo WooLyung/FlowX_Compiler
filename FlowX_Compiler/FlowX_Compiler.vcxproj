@@ -143,14 +143,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="FieldNode.cpp" />
-    <ClCompile Include="FieldNode.h" />
+    <ClInclude Include="FieldNode.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="SemanticAnalyzer.cpp" />
+    <ClCompile Include="SymbolTable.cpp" />
+    <ClCompile Include="ParseTreeNode.cpp" />
     <ClCompile Include="ProgramNode.cpp" />
     <ClCompile Include="SourceReader.cpp" />
     <ClCompile Include="StructDeclarationNode.cpp" />
-    <ClCompile Include="StructDeclarationNode.h" />
+    <ClInclude Include="StructDeclarationNode.h" />
     <ClCompile Include="Token.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -165,6 +168,9 @@
   <ItemGroup>
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="SemanticAnalyzer.h" />
+    <ClInclude Include="SemanticModel.h" />
+    <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="ParseTreeNode.h" />
     <ClInclude Include="ProgramNode.h" />
     <ClInclude Include="pch.h" />

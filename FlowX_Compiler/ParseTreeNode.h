@@ -13,5 +13,7 @@ namespace flowx::parser
         ParseTreeNode(const SourceLocation location) : location_(location) {}
         virtual ~ParseTreeNode() = default;
         virtual std::string_view SymbolName() const noexcept = 0;
+
+        const SourceLocation& GetLocation() const;
     };
 }

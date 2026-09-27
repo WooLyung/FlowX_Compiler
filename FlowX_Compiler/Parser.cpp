@@ -188,9 +188,10 @@ namespace flowx::parser
         return kind;
     }
 
-    std::string Parser::Identifier()
+    const std::string Parser::Identifier()
     {
+        std::string identifier = Peek().lexeme;
         Expect(TokenKind::Identifier);
-        return Peek().lexeme;
+        return identifier;
     }
 }

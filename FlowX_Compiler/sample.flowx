@@ -1,5 +1,5 @@
 struct Vector3 {
-    x: i4, y: f4, z: f?, a: i?!, k: i!
+    x: i4, y: f4, z: f4?, a: i4?
 }
 
 struct IntPair {

@@ -3,6 +3,7 @@
 #include "Lexer.h"
 #include "Token.h"
 #include "Parser.h"
+#include "SemanticAnalyzer.h"
 
 int main(int argc, char* argv[])
 {
@@ -20,6 +21,8 @@ int main(int argc, char* argv[])
 
         flowx::parser::Parser parser(tokens);
         const auto parseTree = parser.Parse();
+        flowx::semantic::SemanticAnalyzer analyzer;
+        const auto definitions = analyzer.Analyze(*parseTree);
     }
     catch (const flowx::lexer::LexerError& error)
     {
@@ -33,6 +36,13 @@ int main(int argc, char* argv[])
         const auto location = error.Location();
         std::cerr << argv[1] << ':' << location.line << ':' << location.column
             << ": parser error: " << error.what() << '\n';
+        return 1;
+    }
+    catch (const flowx::semantic::SemanticError& error)
+    {
+        const auto location = error.Location();
+        std::cerr << argv[1] << ':' << location.line << ':' << location.column
+            << ": semantic error: " << error.what() << '\n';
         return 1;
     }
     catch (const std::exception& error)
