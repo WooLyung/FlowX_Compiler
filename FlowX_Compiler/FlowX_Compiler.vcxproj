@@ -142,7 +142,8 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DeclarationNode.h" />
+    <ClCompile Include="FieldNode.cpp" />
+    <ClCompile Include="FieldNode.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -170,5 +171,6 @@
     <ClInclude Include="SourceReader.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="PrimitiveType.h" />
+    <ClInclude Include="TypeReference.h" />
   </ItemGroup>
 </Project>

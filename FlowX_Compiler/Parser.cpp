@@ -13,6 +13,11 @@ namespace flowx::parser
         return location_;
     }
 
+    const SourceLocation Parser::GetLocation()
+    {
+        return Peek().location;
+    }
+
     Parser::Parser(std::span<const Token> tokens) : tokens_(tokens)
     {
         if (tokens_.empty() || tokens_.back().kind != TokenKind::EndOfFile)
@@ -49,69 +54,87 @@ namespace flowx::parser
 
     std::unique_ptr<ProgramNode> Parser::Program()
     {
-        std::vector<std::unique_ptr<DeclarationNode>> declarations;
+        const SourceLocation location = GetLocation();
+
+        std::vector<std::unique_ptr<StructDeclarationNode>> structDeclarations;
+
         while (Peek().kind != TokenKind::EndOfFile)
-            declarations.push_back(Declaration());
+        {
+            switch (Peek().kind)
+            {
+                case TokenKind::StructKeyword:
+                    structDeclarations.push_back(StructDeclaration());
+                    break;
+                default:
+                    const auto token = Peek();
+                    throw ParserError(token.location, 
+                        "Expected declaration, got " + std::string(TokenKindName(token.kind))
+                        + " '" + token.lexeme + "'");
+            }
+        }
         Expect(TokenKind::EndOfFile);
 
-        std::unique_ptr<ProgramNode> node = std::make_unique<ProgramNode>(declarations);
+        std::unique_ptr<ProgramNode> node = std::make_unique<ProgramNode>(location, structDeclarations);
         return node;
-    }
-
-    std::unique_ptr<DeclarationNode> Parser::Declaration()
-    {
-        // 클래스, 함수 추가 필요
-        return StructDeclaration();
     }
 
     std::unique_ptr<StructDeclarationNode> Parser::StructDeclaration()
     {
+        const SourceLocation location = GetLocation();
+        std::vector<std::unique_ptr<FieldNode>> fields;
+
         Expect(TokenKind::StructKeyword);
-        Identifier();
+        const std::string identifier = Identifier();
         Expect(TokenKind::LeftBrace);
-        Field();
+        fields.push_back(Field());
         while (Peek().kind == TokenKind::Comma)
         {
             Expect(TokenKind::Comma);
-            Field();
+            fields.push_back(Field());
         }
         Expect(TokenKind::RightBrace);
 
-        std::unique_ptr<StructDeclarationNode> node = std::make_unique<StructDeclarationNode>();
+        std::unique_ptr<StructDeclarationNode> node = std::make_unique<StructDeclarationNode>(location, identifier, fields);
         return node;
     }
 
-    void Parser::Field()
+    std::unique_ptr<FieldNode> Parser::Field()
     {
-        Identifier();
+        const SourceLocation location = GetLocation();
+
+        const std::string identifier = Identifier();
         Expect(TokenKind::Colon);
-        TypeReference();
+        const auto typeReference = TypeReference();
+
+        std::unique_ptr<FieldNode> node = std::make_unique<FieldNode>(location, identifier, typeReference);
+        return node;
     }
 
-    void Parser::TypeReference()
+    const TypeReference Parser::TypeReference()
     {
-        TypeName();
+        const auto typeName = TypeName();
         switch (Peek().kind)
         {
             case TokenKind::Question:
             case TokenKind::Bang:
             case TokenKind::QuestionBang:
-                TypeModifier();
-                break;
+                return { typeName.kind, typeName.lexeme, TypeModifier() };
             default:
                 break;
         }
+        return { typeName.kind, typeName.lexeme, TypeModifierKind::None };
     }
 
-    void Parser::TypeName()
+    const TypeName Parser::TypeName()
     {
+        const std::string lexeme = Peek().lexeme;
         switch (Peek().kind)
         {
             case TokenKind::PrimitiveType:
-                PrimitiveType();
+                return { PrimitiveType(), lexeme };
                 break;
             case TokenKind::Identifier:
-                Identifier();
+                return { TypeReferenceKind::Struct, Identifier() };
                 break;
             default:
                 throw ParserError(Peek().location,
@@ -120,27 +143,54 @@ namespace flowx::parser
         }
     }
 
-    void Parser::PrimitiveType()
+    const TypeReferenceKind Parser::PrimitiveType()
     {
+        const std::string lexeme = Peek().lexeme;
         Expect(TokenKind::PrimitiveType);
+
+        if (lexeme == "i4")
+            return TypeReferenceKind::Int4;
+        if (lexeme == "i8")
+            return TypeReferenceKind::Int8;
+        if (lexeme == "f4")
+            return TypeReferenceKind::Float4;
+        if (lexeme == "f8")
+            return TypeReferenceKind::Float8;
+        if (lexeme == "b")
+            return TypeReferenceKind::Bool;
+        if (lexeme == "c")
+            return TypeReferenceKind::Char;
+        throw ParserError(Peek().location,
+            "Expected primitive type, got '"
+            + std::string(lexeme) + "'");
     }
 
-    void Parser::TypeModifier()
+    const TypeModifierKind Parser::TypeModifier()
     {
+        TypeModifierKind kind = TypeModifierKind::None;
         switch (Peek().kind)
         {
             case TokenKind::Question:
+                kind = TypeModifierKind::Nullable;
+                Expect(Peek().kind);
+                break;
             case TokenKind::Bang:
+                kind = TypeModifierKind::Errorable;
+                Expect(Peek().kind);
+                break;
             case TokenKind::QuestionBang:
+                kind = TypeModifierKind::NullErrorable;
                 Expect(Peek().kind);
                 break;
             default:
                 throw ParserError(Peek().location, "Expected '?', '!' or '?!'");
         }
+        return kind;
     }
 
-    void Parser::Identifier()
+    std::string Parser::Identifier()
     {
         Expect(TokenKind::Identifier);
+        return Peek().lexeme;
     }
 }

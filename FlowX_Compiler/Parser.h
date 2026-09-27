@@ -1,10 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "Token.h"
+#include "TypeReference.h"
 
 #include "ProgramNode.h"
-#include "DeclarationNode.h"
 #include "StructDeclarationNode.h"
+#include "FieldNode.h"
 
 namespace flowx::parser
 {
@@ -21,17 +22,18 @@ namespace flowx::parser
     class Parser
     {
     private:
+        const SourceLocation GetLocation();
         const Token& Peek() const;
         void Expect(TokenKind kind);
         std::unique_ptr<ProgramNode> Program();
-        std::unique_ptr<DeclarationNode> Declaration();
         std::unique_ptr<StructDeclarationNode> StructDeclaration();
-        void Field();
-        void TypeReference();
-        void TypeName();
-        void PrimitiveType();
-        void TypeModifier();
-        void Identifier();
+        std::unique_ptr<FieldNode> Field();
+
+        const TypeReference TypeReference();
+        const TypeName TypeName();
+        const TypeReferenceKind PrimitiveType();
+        const TypeModifierKind TypeModifier();
+        std::string Identifier();
 
         std::span<const Token> tokens_;
         std::size_t position_ = 0;

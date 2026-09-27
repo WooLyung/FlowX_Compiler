@@ -57,16 +57,6 @@ namespace flowx
         return "Unknown";
     }
 
-    void PrintTokens(std::span<const Token> tokens, std::ostream& output)
-    {
-        for (const auto& token : tokens)
-        {
-            output << token.location.line << ':' << token.location.column
-                << ' ' << TokenKindName(token.kind)
-                << " \"" << token.lexeme << "\"\n";
-        }
-    }
-
     bool IsIdentifierStart(char character)
     {
         return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') || character == '_';

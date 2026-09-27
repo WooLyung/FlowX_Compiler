@@ -17,9 +17,9 @@ int main(int argc, char* argv[])
         flowx::SourceReader reader;
         flowx::lexer::Lexer lexer(reader.ReadFile(argv[1]));
         const auto tokens = lexer.Tokenize();
-        flowx::PrintTokens(tokens, std::cout);
+
         flowx::parser::Parser parser(tokens);
-        parser.Parse();
+        const auto parseTree = parser.Parse();
     }
     catch (const flowx::lexer::LexerError& error)
     {

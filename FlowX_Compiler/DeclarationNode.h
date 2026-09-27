@@ -6,5 +6,7 @@ namespace flowx::parser
 {
     class DeclarationNode : public ParseTreeNode
     {
+    public:
+        DeclarationNode(const SourceLocation location) : ParseTreeNode(location) {}
     };
 }

@@ -1,11 +1,18 @@
 #pragma once
 #include "pch.h"
-#include "DeclarationNode.h"
+#include "ParseTreeNode.h"
+#include "FieldNode.h"
 
 namespace flowx::parser
 {
-    class StructDeclarationNode final : public DeclarationNode
+    class StructDeclarationNode final : public ParseTreeNode
     {
+    private:
+        std::string identifier_;
+        std::vector<std::unique_ptr<FieldNode>> fields_;
+
+    public:
+        StructDeclarationNode(const SourceLocation location, const std::string identifier, const std::span<std::unique_ptr<FieldNode>> fields);
         std::string_view SymbolName() const noexcept override;
     };
 }
