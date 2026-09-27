@@ -1,0 +1,7 @@
+struct Vector3 {
+    x: i4, y: f4, z: f?, a: i?!, b: i!
+}
+
+class Addable<T> {
+    fn add(T, T) -> (T);
+}

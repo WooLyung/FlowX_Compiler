@@ -1,0 +1,13 @@
+#pragma once
+#include <utility>
+#include <fstream>
+#include <exception>
+#include <stdexcept>
+#include <ostream>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <string_view>
+#include <filesystem>
+#include <span>
+#include <cctype>

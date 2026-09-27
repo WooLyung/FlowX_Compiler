@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="FlowX_Compiler/FlowX_Compiler.vcxproj" Id="7f0b4c9c-52b5-4192-bf1c-7bc116a6749b" />
+</Solution>
