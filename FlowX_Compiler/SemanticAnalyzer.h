@@ -25,6 +25,10 @@ namespace flowx::semantic
         void OrderStructs(SemanticModel& model);
         void VisitStruct(unsigned int id, SemanticModel& model, std::vector<VisitState>& states);
 
+        void RegisterClasses(const parser::ProgramNode& program, SemanticModel& model);
+        void ResolveClasses(const parser::ProgramNode& program, SemanticModel& model);
+        void ValidateRequirementType(const TypeReference& type, const ClassDefinition& definition, const SemanticModel& model, SourceLocation location);
+
     public:
         const SemanticModel Analyze(const parser::ProgramNode& program);
     };

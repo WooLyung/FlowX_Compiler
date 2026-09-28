@@ -17,26 +17,32 @@ namespace flowx::semantic
     {
         SemanticModel model;
 
+        // 구조체
         RegisterStructs(program, model);
         ResolveFields(program, model);
         OrderStructs(model);
+
+        // 클래스
+        RegisterClasses(program, model);
+        ResolveClasses(program, model);
 
         return model;
     }
 
     void SemanticAnalyzer::RegisterStructs(const parser::ProgramNode& program, SemanticModel& model)
     {
+        // 구조체 등록 및 식별자 중복 검사
         for (const auto& declaration : program.GetStructDeclarations())
         {
             const auto& name = declaration->GetIdentifier();
             const auto location = declaration->GetLocation();
 
-            Symbol exist;
-            if (model.symbols.Find(name, exist))
+            Symbol existing;
+            if (model.symbols.Find(name, existing))
             {
                 throw SemanticError(location, "Duplicate declaration '" + name
-                    + "' (first declared at " + std::to_string(exist.location.line)
-                    + ":" + std::to_string(exist.location.column) + ")");
+                    + "' (first declared at " + std::to_string(existing.location.line)
+                    + ":" + std::to_string(existing.location.column) + ")");
             }
 
             const unsigned int id = (unsigned int)model.structs.size();
@@ -60,12 +66,15 @@ namespace flowx::semantic
                 const auto& type = field->GetTypeReference();
                 const auto location = field->GetLocation();
 
+                // 중복된 필드 검사
                 if (!fieldNames.insert(name).second)
                     throw SemanticError(location, "Duplicate field '" + definition.name + "." + name + "'");
 
+                // 필드에서 error 금지
                 if (type.modifier != TypeModifierKind::None && type.modifier != TypeModifierKind::Nullable)
                     throw SemanticError(location, "Field '" + definition.name + "." + name + "' cannot use '!' or '?!'");
 
+                // 알 수 없는 구조체 검사
                 std::optional<unsigned int> referencedStruct;
                 if (type.kind == TypeReferenceKind::Named)
                 {
@@ -80,14 +89,107 @@ namespace flowx::semantic
         }
     }
 
+    void SemanticAnalyzer::RegisterClasses(const parser::ProgramNode& program, SemanticModel& model)
+    {
+        // 클래스 등록 및 식별자 중복 검사
+        for (const auto& declaration : program.GetClassDeclarations())
+        {
+            const auto& name = declaration->GetIdentifier();
+            const auto location = declaration->GetLocation();
+            Symbol existing;
+            if (model.symbols.Find(name, existing))
+                throw SemanticError(location, "Duplicate declaration '" + name + "'");
+
+            const unsigned int id = static_cast<unsigned int>(model.classes.size());
+            model.symbols.Define(name, { SymbolKind::Class, id, location });
+            model.classes.push_back({ name, location, declaration->GetGeneric(), {} });
+        }
+    }
+
+    void SemanticAnalyzer::ValidateRequirementType(const TypeReference& type, const ClassDefinition& definition, const SemanticModel& model, SourceLocation location)
+    {
+        // 클래스의 함수 시그니처 입출력 검사
+        if (type.kind != TypeReferenceKind::Named || type.lexeme == definition.generic)
+            return;
+
+        Symbol symbol;
+        if (!model.symbols.Find(type.lexeme, symbol) || symbol.kind != SymbolKind::Struct)
+            throw SemanticError(location, "Invalid requirement type '" + type.lexeme + "' in class '" + definition.name + "'");
+    }
+
+    void SemanticAnalyzer::ResolveClasses(const parser::ProgramNode& program, SemanticModel& model)
+    {
+        const auto& declarations = program.GetClassDeclarations();
+
+        for (std::size_t id = 0; id < declarations.size(); ++id)
+        {
+            auto& definition = model.classes[id];
+
+            // 제네릭이 사용중인 식별자인지 검사
+            Symbol symbol;
+            if (model.symbols.Find(definition.generic, symbol))
+                throw SemanticError(definition.location, "Generic parameter '" + definition.generic + "' conflicts");
+
+            // 빈 클래스인지 검사
+            const auto& requirements = declarations[id]->GetRequirements();
+            if (requirements.empty())
+                throw SemanticError(definition.location, "Class '" + definition.name + "' has no requirements");
+
+            for (const auto& requirement : requirements)
+            {
+                const auto& name = requirement->GetIdentifier();
+                const auto location = requirement->GetLocation();
+                if (name == definition.generic ||
+                    (model.symbols.Find(name, symbol) &&
+                        (symbol.kind == SymbolKind::Struct || symbol.kind == SymbolKind::Class)))
+                    throw SemanticError(location, "Requirement name '" + name + "' conflicts with a type name");
+
+                const auto& inputs = requirement->GetInputs();
+                const auto& outputs = requirement->GetOutputs();
+
+                // 출력 없는 함수 검사
+                if (outputs.empty())
+                    throw SemanticError(location, "Requirement '" + name + "' must have at least one output");
+
+                for (const auto& type : inputs)
+                    ValidateRequirementType(type, definition, model, location);
+                for (const auto& type : outputs)
+                    ValidateRequirementType(type, definition, model, location);
+
+                // 중복된 입력을 가진 함수 검사
+                for (const auto& previous : definition.requirements)
+                {
+                    if (previous.name != name || previous.inputs.size() != inputs.size())
+                        continue;
+
+                    bool flag = true;
+                    for (std::size_t index = 0; index < inputs.size(); ++index)
+                    {
+                        const auto& left = previous.inputs[index];
+                        const auto& right = inputs[index];
+                        if (left.kind != right.kind || left.modifier != right.modifier || (left.kind == TypeReferenceKind::Named && left.lexeme != right.lexeme))
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+
+                    if (flag)
+                        throw SemanticError(location, "Duplicate input signature for requirement '" + name + "'");
+                }
+
+                definition.requirements.push_back({ name, location, inputs, outputs });
+            }
+        }
+    }
+
     void SemanticAnalyzer::OrderStructs(SemanticModel& model)
     {
+        // 구조체 순환 참조 검사
         std::vector<VisitState> states(model.structs.size(), VisitState::Unvisited);
         for (unsigned int id = 0; id < model.structs.size(); ++id)
-        {
             if (states[id] == VisitState::Unvisited)
                 VisitStruct(id, model, states);
-        }
     }
 
     void SemanticAnalyzer::VisitStruct(unsigned int id, SemanticModel& model, std::vector<VisitState>& states)

@@ -20,9 +20,26 @@ namespace flowx::semantic
         std::vector<FieldDefinition> fields;
     };
 
+    struct FunctionRequirementDefinition
+    {
+        std::string name;
+        SourceLocation location;
+        std::vector<TypeReference> inputs;
+        std::vector<TypeReference> outputs;
+    };
+
+    struct ClassDefinition
+    {
+        std::string name;
+        SourceLocation location;
+        std::string generic;
+        std::vector<FunctionRequirementDefinition> requirements;
+    };
+
     struct SemanticModel
     {
         SymbolTable symbols;
         std::vector<StructDefinition> structs;
+        std::vector<ClassDefinition> classes;
     };
 }
