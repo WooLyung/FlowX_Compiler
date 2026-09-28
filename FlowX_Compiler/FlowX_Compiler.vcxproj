@@ -142,8 +142,11 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ClassDeclarationNode.h" />
+    <ClCompile Include="ClassDeclarationNode.cpp" />
     <ClCompile Include="FieldNode.cpp" />
     <ClInclude Include="FieldNode.h" />
+    <ClCompile Include="FunctionRequirementNode.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -154,6 +157,7 @@
     <ClCompile Include="ProgramNode.cpp" />
     <ClCompile Include="SourceReader.cpp" />
     <ClCompile Include="StructDeclarationNode.cpp" />
+    <ClInclude Include="FunctionRequirementNode.h" />
     <ClInclude Include="StructDeclarationNode.h" />
     <ClCompile Include="Token.cpp" />
     <ClCompile Include="pch.cpp">

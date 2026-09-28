@@ -67,7 +67,7 @@ namespace flowx::semantic
                     throw SemanticError(location, "Field '" + definition.name + "." + name + "' cannot use '!' or '?!'");
 
                 std::optional<unsigned int> referencedStruct;
-                if (type.kind == TypeReferenceKind::Struct)
+                if (type.kind == TypeReferenceKind::Named)
                 {
                     Symbol symbol{};
                     if (!model.symbols.Find(type.lexeme, symbol) || symbol.kind != SymbolKind::Struct)

@@ -13,70 +13,154 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\Lexer">
+      <UniqueIdentifier>{be2cb9a1-66e2-4297-bd12-5744b69fb2e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\CodeGenerator">
+      <UniqueIdentifier>{20f73e11-0a2b-482c-93a0-e42ee34ac8e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Element">
+      <UniqueIdentifier>{c1953c28-fa25-4a63-9ba1-339e5090b78b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Parser">
+      <UniqueIdentifier>{d3cca130-d4de-4292-85a6-0201b6be9d32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Parser\ParseTreeNode">
+      <UniqueIdentifier>{84e65dab-147e-436f-bdd6-8538bac36e19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SemanticAnalyzer">
+      <UniqueIdentifier>{aff0d7a3-d13a-4ce4-a2a5-017cae675d28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\SourceReader">
+      <UniqueIdentifier>{13609eb1-cfc0-493f-b0bc-34f4f19a15a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PCH">
+      <UniqueIdentifier>{b2f913d7-b86f-4743-95a3-7feefaf0c34d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\CodeGenerator">
+      <UniqueIdentifier>{beb241fc-0179-4a73-8935-6115604150f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Parser">
+      <UniqueIdentifier>{e416405e-faea-4b51-ad73-148fdafdf651}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Parser\ParseTree">
+      <UniqueIdentifier>{a938fc9c-a0b0-420d-951d-526082f47cf9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Lexer">
+      <UniqueIdentifier>{f4f6230a-837b-4113-a234-492177f7353f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Element">
+      <UniqueIdentifier>{078e624b-c313-40b9-be9a-56efab1626cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SourceReader">
+      <UniqueIdentifier>{210a5fb5-d998-4ca7-9beb-75353a8936e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\SemanticAnalyzer">
+      <UniqueIdentifier>{2bb9123d-abeb-4f67-9937-f03dc1757199}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="sample.flowx" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Lexer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Lexer</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeGenerator.cpp">
+      <Filter>소스 파일\CodeGenerator</Filter>
     </ClCompile>
     <ClCompile Include="Parser.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="ParseTreeNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+    </ClCompile>
+    <ClCompile Include="StructDeclarationNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
     </ClCompile>
     <ClCompile Include="SemanticAnalyzer.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\SemanticAnalyzer</Filter>
     </ClCompile>
     <ClCompile Include="SymbolTable.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Element</Filter>
     </ClCompile>
     <ClCompile Include="Token.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Element</Filter>
     </ClCompile>
-    <ClInclude Include="Lexer.h">
-      <Filter>헤더 파일</Filter>
+    <ClCompile Include="SourceReader.cpp">
+      <Filter>소스 파일\SourceReader</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>PCH</Filter>
+    </ClCompile>
+    <ClCompile Include="ClassDeclarationNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+    </ClCompile>
+    <ClCompile Include="FunctionRequirementNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\sample.flowx" />
+    <None Include="..\sample.ll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CodeGenerator.h">
+      <Filter>헤더 파일\CodeGenerator</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldNode.h">
+      <Filter>헤더 파일\Parser\ParseTree</Filter>
     </ClInclude>
     <ClInclude Include="Parser.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SemanticAnalyzer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SemanticModel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SymbolTable.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Parser</Filter>
     </ClInclude>
     <ClInclude Include="ParseTreeNode.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Parser\ParseTree</Filter>
     </ClInclude>
     <ClInclude Include="ProgramNode.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Parser\ParseTree</Filter>
+    </ClInclude>
+    <ClInclude Include="StructDeclarationNode.h">
+      <Filter>헤더 파일\Parser\ParseTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Lexer.h">
+      <Filter>헤더 파일\Lexer</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>PCH</Filter>
     </ClInclude>
     <ClInclude Include="Token.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Element</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="SourceReader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClInclude Include="SourceReader.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="SymbolTable.h">
+      <Filter>헤더 파일\Element</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="TypeReference.h">
+      <Filter>헤더 파일\Element</Filter>
+    </ClInclude>
     <ClInclude Include="PrimitiveType.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Element</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="SourceReader.h">
+      <Filter>헤더 파일\SourceReader</Filter>
+    </ClInclude>
+    <ClInclude Include="SemanticAnalyzer.h">
+      <Filter>헤더 파일\SemanticAnalyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="SemanticModel.h">
+      <Filter>헤더 파일\SemanticAnalyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassDeclarationNode.h">
+      <Filter>헤더 파일\Parser\ParseTree</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionRequirementNode.h">
+      <Filter>헤더 파일\Parser\ParseTree</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

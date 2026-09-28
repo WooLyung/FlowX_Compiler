@@ -6,6 +6,8 @@
 #include "ProgramNode.h"
 #include "StructDeclarationNode.h"
 #include "FieldNode.h"
+#include "ClassDeclarationNode.h"
+#include "FunctionRequirementNode.h"
 
 namespace flowx::parser
 {
@@ -25,15 +27,19 @@ namespace flowx::parser
         const SourceLocation GetLocation();
         const Token& Peek() const;
         void Expect(TokenKind kind);
+
         std::unique_ptr<ProgramNode> Program();
         std::unique_ptr<StructDeclarationNode> StructDeclaration();
         std::unique_ptr<FieldNode> Field();
+        std::unique_ptr<ClassDeclarationNode> ClassDeclaration();
+        std::unique_ptr<FunctionRequirementNode> FunctionRequirement();
 
-        const TypeReference TypeReference();
+        const flowx::TypeReference TypeReference();
         const TypeName TypeName();
         const TypeReferenceKind PrimitiveType();
         const TypeModifierKind TypeModifier();
         const std::string Identifier();
+        std::vector<flowx::TypeReference> TypeList();
 
         std::span<const Token> tokens_;
         std::size_t position_ = 0;

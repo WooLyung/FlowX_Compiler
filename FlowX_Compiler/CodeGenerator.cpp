@@ -66,7 +66,7 @@ namespace flowx::codegenerator
                 postfix = ".nullerrorable";
                 break;
             default:
-                if (type.kind != TypeReferenceKind::Struct)
+                if (type.kind != TypeReferenceKind::Named)
                     return typeName;
         }
 
@@ -99,7 +99,7 @@ namespace flowx::codegenerator
 
         for (const auto& definition : model_.structs)
         {
-            output << TypeName({ TypeReferenceKind::Struct, definition.name }) << " = type { ";
+            output << TypeName({ TypeReferenceKind::Named, definition.name }) << " = type { ";
             for (std::size_t index = 0; index < definition.fields.size(); ++index)
             {
                 if (index != 0) output << ", ";
@@ -107,7 +107,7 @@ namespace flowx::codegenerator
             }
 
             output << " }\n";
-            WriteVariants(output, TypeReferenceKind::Struct, definition.name);
+            WriteVariants(output, TypeReferenceKind::Named, definition.name);
             output << '\n';
         }
     }

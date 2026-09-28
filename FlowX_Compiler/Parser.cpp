@@ -57,6 +57,7 @@ namespace flowx::parser
         const SourceLocation location = GetLocation();
 
         std::vector<std::unique_ptr<StructDeclarationNode>> structDeclarations;
+        std::vector<std::unique_ptr<ClassDeclarationNode>> classDeclarations;
 
         while (Peek().kind != TokenKind::EndOfFile)
         {
@@ -64,6 +65,9 @@ namespace flowx::parser
             {
                 case TokenKind::StructKeyword:
                     structDeclarations.push_back(StructDeclaration());
+                    break;
+                case TokenKind::ClassKeyword:
+                    classDeclarations.push_back(ClassDeclaration());
                     break;
                 default:
                     const auto token = Peek();
@@ -74,7 +78,7 @@ namespace flowx::parser
         }
         Expect(TokenKind::EndOfFile);
 
-        std::unique_ptr<ProgramNode> node = std::make_unique<ProgramNode>(location, structDeclarations);
+        std::unique_ptr<ProgramNode> node = std::make_unique<ProgramNode>(location, structDeclarations, classDeclarations);
         return node;
     }
 
@@ -110,7 +114,7 @@ namespace flowx::parser
         return node;
     }
 
-    const TypeReference Parser::TypeReference()
+    const flowx::TypeReference Parser::TypeReference()
     {
         const auto typeName = TypeName();
         switch (Peek().kind)
@@ -134,7 +138,7 @@ namespace flowx::parser
                 return { PrimitiveType(), lexeme };
                 break;
             case TokenKind::Identifier:
-                return { TypeReferenceKind::Struct, Identifier() };
+                return { TypeReferenceKind::Named, Identifier() };
                 break;
             default:
                 throw ParserError(Peek().location,
@@ -193,5 +197,60 @@ namespace flowx::parser
         std::string identifier = Peek().lexeme;
         Expect(TokenKind::Identifier);
         return identifier;
+    }
+
+    std::unique_ptr<ClassDeclarationNode> Parser::ClassDeclaration()
+    {
+        const SourceLocation location = GetLocation();
+        std::vector<std::unique_ptr<FunctionRequirementNode>> requirements;
+
+        Expect(TokenKind::ClassKeyword);
+        const std::string identifier = Identifier();
+        Expect(TokenKind::LessThan);
+        const std::string generic = Identifier();
+        Expect(TokenKind::GreaterThan);
+        Expect(TokenKind::LeftBrace);
+        while (Peek().kind == TokenKind::FnKeyword)
+            requirements.push_back(FunctionRequirement());
+        Expect(TokenKind::RightBrace);
+
+        std::unique_ptr<ClassDeclarationNode> node = std::make_unique<ClassDeclarationNode>(location, identifier, generic, requirements);
+        return node;
+    }
+
+    std::unique_ptr<FunctionRequirementNode> Parser::FunctionRequirement()
+    {
+        const SourceLocation location = GetLocation();
+
+        Expect(TokenKind::FnKeyword);
+        const std::string identifier = Identifier();
+        Expect(TokenKind::LeftParen);
+        std::vector<flowx::TypeReference> inputs = TypeList();
+        Expect(TokenKind::RightParen);
+        Expect(TokenKind::Arrow);
+        Expect(TokenKind::LeftParen);
+        std::vector<flowx::TypeReference> outputs = TypeList();
+        Expect(TokenKind::RightParen);
+        Expect(TokenKind::Semicolon);
+
+        std::unique_ptr<FunctionRequirementNode> node = std::make_unique<FunctionRequirementNode>(location, identifier, inputs, outputs);
+        return node;
+    }
+
+    std::vector<flowx::TypeReference> Parser::TypeList()
+    {
+        std::vector<flowx::TypeReference> result;
+
+        if (Peek().kind != TokenKind::PrimitiveType && Peek().kind != TokenKind::Identifier)
+            return result;
+
+        result.push_back(TypeReference());
+        while (Peek().kind == TokenKind::Comma)
+        {
+            Expect(TokenKind::Comma);
+            result.push_back(TypeReference());
+        }
+
+        return result;
     }
 }

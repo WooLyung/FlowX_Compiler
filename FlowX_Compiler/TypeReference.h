@@ -4,7 +4,7 @@ namespace flowx
 {
     enum class TypeReferenceKind
     {
-        Int4, Int8, Float4, Float8, Bool, Char, Struct
+        Int4, Int8, Float4, Float8, Bool, Char, Named
     };
 
     enum class TypeModifierKind
@@ -26,7 +26,7 @@ namespace flowx
 
         const std::string ToString() const
         {
-            std::string str = std::string("Struct ") + std::string(lexeme);
+            std::string str = std::string("Named ") + std::string(lexeme);
 
             switch (kind)
             {

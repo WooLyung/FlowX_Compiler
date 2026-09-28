@@ -6,9 +6,13 @@ struct IntPair {
     first: i4, second: i4
 }
 
-//class Addable<T> {
-//    fn add(T, T) -> (T);
-//}
+class Addable<T> {
+    fn add(T) -> (T);
+}
+
+class Test<T> {
+    fn hello(T, T, b) -> (b);
+}
 
 //fn identity(value: i4) -> (result: i4) {
 //    value as result;
