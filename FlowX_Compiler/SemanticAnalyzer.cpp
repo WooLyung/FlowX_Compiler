@@ -26,6 +26,9 @@ namespace flowx::semantic
         RegisterClasses(program, model);
         ResolveClasses(program, model);
 
+        // 함수
+        ResolveFunctions(program, model);
+
         return model;
     }
 
@@ -37,6 +40,7 @@ namespace flowx::semantic
             const auto& name = declaration->GetIdentifier();
             const auto location = declaration->GetLocation();
 
+            ValidateName(name, location);
             Symbol existing;
             if (model.symbols.Find(name, existing))
             {
@@ -65,6 +69,7 @@ namespace flowx::semantic
                 const auto& name = field->GetIdentifier();
                 const auto& type = field->GetTypeReference();
                 const auto location = field->GetLocation();
+                ValidateName(name, location);
 
                 // 중복된 필드 검사
                 if (!fieldNames.insert(name).second)
@@ -96,6 +101,9 @@ namespace flowx::semantic
         {
             const auto& name = declaration->GetIdentifier();
             const auto location = declaration->GetLocation();
+            ValidateName(name, location);
+            ValidateName(declaration->GetGeneric(), location);
+
             Symbol existing;
             if (model.symbols.Find(name, existing))
                 throw SemanticError(location, "Duplicate declaration '" + name + "'");
@@ -139,6 +147,7 @@ namespace flowx::semantic
             {
                 const auto& name = requirement->GetIdentifier();
                 const auto location = requirement->GetLocation();
+                ValidateName(name, location);
                 if (name == definition.generic ||
                     (model.symbols.Find(name, symbol) &&
                         (symbol.kind == SymbolKind::Struct || symbol.kind == SymbolKind::Class)))
@@ -179,6 +188,95 @@ namespace flowx::semantic
                 }
 
                 definition.requirements.push_back({ name, location, inputs, outputs });
+            }
+        }
+    }
+
+    void SemanticAnalyzer::ValidateName(const std::string& name, SourceLocation location)
+    {
+        // 예약어인지 확인
+        for (const auto reserved : reservedNames_)
+            if (name == reserved)
+                throw SemanticError(location, "Reserved name '" + name + "' cannot be declared");
+    }
+
+    void SemanticAnalyzer::ResolveFunctions(const parser::ProgramNode& program, SemanticModel& model)
+    {
+        const auto& declarations = program.GetFunctionDeclarations();
+
+        for (std::size_t index = 0; index < declarations.size(); ++index)
+        {
+            const auto& declaration = declarations[index];
+            const auto& name = declaration->GetIdentifier();
+            const auto location = declaration->GetLocation();
+            ValidateName(name, location);
+
+            Symbol symbol;
+            const bool exists = model.symbols.Find(name, symbol);
+            if (exists && symbol.kind != SymbolKind::Function)
+                throw SemanticError(location, "Function name '" + name + "' conflicts with a type name");
+
+            const auto& inputs = declaration->GetInputs();
+            const auto& outputs = declaration->GetOutputs();
+            
+            if (outputs.empty())
+                throw SemanticError(location, "Function '" + name + "' must have at least one output");
+
+            ValidateParameters(inputs, model, location, "input");
+            ValidateParameters(outputs, model, location, "output");
+
+            unsigned int id;
+            if (exists)
+                id = symbol.definitionIndex;
+            else
+            {
+                id = static_cast<unsigned int>(model.functions.size());
+                model.symbols.Define(name, { SymbolKind::Function, id, location });
+                model.functions.push_back({ name, location, {} });
+            }
+
+            auto& definition = model.functions[id];
+            for (const auto& previous : definition.overloads)
+            {
+                if (previous.inputs.size() != inputs.size())
+                    continue;
+
+                bool flag = true;
+                for (std::size_t parameter = 0; parameter < inputs.size(); ++parameter)
+                {
+                    const auto& left = previous.inputs[parameter].type;
+                    const auto& right = inputs[parameter].type;
+                    if (left.kind != right.kind || left.modifier != right.modifier || (left.kind == TypeReferenceKind::Named && left.lexeme != right.lexeme))
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+
+                if (flag)
+                    throw SemanticError(location, "Duplicate input signature for function '" + name + "'");
+            }
+
+            definition.overloads.push_back({ location, static_cast<unsigned int>(index), inputs, outputs });
+        }
+    }
+
+    void SemanticAnalyzer::ValidateParameters(const std::vector<Parameter>& parameters, const SemanticModel& model, SourceLocation location, const std::string& direction)
+    {
+        // 함수 입출력 파라미터 검사
+        std::unordered_set<std::string> names;
+        for (const auto& parameter : parameters)
+        {
+            ValidateName(parameter.identifier, location);
+
+            if (!names.insert(parameter.identifier).second)
+                throw SemanticError(location, "Duplicate " + direction + " parameter '" + parameter.identifier + "'");
+
+            if (parameter.type.kind == TypeReferenceKind::Named)
+            {
+                Symbol symbol;
+                if (!model.symbols.Find(parameter.type.lexeme, symbol) || (symbol.kind != SymbolKind::Struct && symbol.kind != SymbolKind::Class))
+                    throw SemanticError(location, "Unknown " + direction + " type '" + parameter.type.lexeme + "'");
             }
         }
     }

@@ -18,6 +18,15 @@ namespace flowx::semantic
     class SemanticAnalyzer
     {
     private:
+        inline static const std::vector<std::string_view> reservedNames_ = {
+            "_", 
+            "pass"
+        };
+
+        void ValidateName(const std::string& name, SourceLocation location);
+        void ResolveFunctions(const parser::ProgramNode& program, SemanticModel& model);
+        void ValidateParameters(const std::vector<Parameter>& parameters, const SemanticModel& model, SourceLocation location, const std::string& direction);
+
         enum class VisitState { Unvisited, Visiting, Complete };
 
         void RegisterStructs(const parser::ProgramNode& program, SemanticModel& model);

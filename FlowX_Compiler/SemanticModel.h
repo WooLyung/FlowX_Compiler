@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "SymbolTable.h"
 #include "TypeReference.h"
+#include "Parameter.h"
 
 namespace flowx::semantic
 {
@@ -36,10 +37,26 @@ namespace flowx::semantic
         std::vector<FunctionRequirementDefinition> requirements;
     };
 
+    struct FunctionOverloadDefinition
+    {
+        SourceLocation location;
+        unsigned int declarationIndex;
+        std::vector<Parameter> inputs;
+        std::vector<Parameter> outputs;
+    };
+
+    struct FunctionDefinition
+    {
+        std::string name;
+        SourceLocation location;
+        std::vector<FunctionOverloadDefinition> overloads;
+    };
+
     struct SemanticModel
     {
         SymbolTable symbols;
         std::vector<StructDefinition> structs;
         std::vector<ClassDefinition> classes;
+        std::vector<FunctionDefinition> functions;
     };
 }
