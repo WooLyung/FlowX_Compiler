@@ -1,0 +1,10 @@
+root = true
+
+[*.{cpp,h,hpp,vcxproj,user,slnx,flowx}]
+end_of_line = crlf
+
+[*.ll]
+end_of_line = lf
+
+[{.gitattributes,.editorconfig,AGENTS.md}]
+end_of_line = lf

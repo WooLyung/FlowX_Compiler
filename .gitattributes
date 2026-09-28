@@ -1,0 +1,13 @@
+# Normalize text in Git; keep Visual Studio sources as CRLF in the working tree.
+* text=auto
+*.cpp text eol=crlf
+*.h text eol=crlf
+*.hpp text eol=crlf
+*.vcxproj text eol=crlf
+*.vcxproj.user text eol=crlf
+*.slnx text eol=crlf
+*.flowx text eol=crlf
+*.ll text eol=lf
+.gitattributes text eol=lf
+.editorconfig text eol=lf
+AGENTS.md text eol=lf

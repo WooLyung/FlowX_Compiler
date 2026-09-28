@@ -148,6 +148,7 @@
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="SemanticAnalyzer.cpp" />
+    <ClCompile Include="CodeGenerator.cpp" />
     <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="ParseTreeNode.cpp" />
     <ClCompile Include="ProgramNode.cpp" />
@@ -163,12 +164,10 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ItemGroup>
-    <None Include="sample.flowx" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Lexer.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="SemanticAnalyzer.h" />
+    <ClInclude Include="CodeGenerator.h" />
     <ClInclude Include="SemanticModel.h" />
     <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="ParseTreeNode.h" />
@@ -178,5 +177,9 @@
     <ClInclude Include="Token.h" />
     <ClInclude Include="PrimitiveType.h" />
     <ClInclude Include="TypeReference.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\sample.flowx" />
+    <None Include="..\sample.ll" />
   </ItemGroup>
 </Project>
