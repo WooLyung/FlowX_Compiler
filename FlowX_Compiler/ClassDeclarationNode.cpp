@@ -3,7 +3,11 @@
 
 namespace flowx::parser
 {
-    ClassDeclarationNode::ClassDeclarationNode(const SourceLocation location, const std::string identifier, const std::string generic, const std::span<std::unique_ptr<FunctionRequirementNode>> requirements)
+    ClassDeclarationNode::ClassDeclarationNode(
+        const SourceLocation location, 
+        const std::string identifier, 
+        const std::string generic, 
+        const std::span<std::unique_ptr<FunctionRequirementNode>>& requirements)
         : ParseTreeNode(location), identifier_(identifier), generic_(generic)
     {
         this->requirements_.reserve(requirements.size());

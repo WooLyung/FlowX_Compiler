@@ -13,7 +13,7 @@ namespace flowx::parser
         std::vector<std::unique_ptr<FunctionRequirementNode>> requirements_;
 
     public:
-        ClassDeclarationNode(const SourceLocation location, const std::string identifier, const std::string generic, const std::span<std::unique_ptr<FunctionRequirementNode>> requirements);
+        ClassDeclarationNode(const SourceLocation location, const std::string identifier, const std::string generic, const std::span<std::unique_ptr<FunctionRequirementNode>>& requirements);
         std::string_view SymbolName() const noexcept override;
 
         const std::string& GetIdentifier() const;

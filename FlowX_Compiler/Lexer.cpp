@@ -87,8 +87,6 @@ namespace flowx::lexer
             kind = TokenKind::FnKeyword;
         else if (lexeme == "as")
             kind = TokenKind::AsKeyword;
-        else if (lexeme == "_")
-            kind = TokenKind::Underscore;
         else if (IsPrimitiveType(lexeme))
             kind = TokenKind::PrimitiveType;
 

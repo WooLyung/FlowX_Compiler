@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Parser.h"
+#include "EntryNode.h"
 
 namespace flowx::parser
 {
@@ -58,6 +59,7 @@ namespace flowx::parser
 
         std::vector<std::unique_ptr<StructDeclarationNode>> structDeclarations;
         std::vector<std::unique_ptr<ClassDeclarationNode>> classDeclarations;
+        std::vector<std::unique_ptr<FunctionDeclarationNode>> functionDeclarations;
 
         while (Peek().kind != TokenKind::EndOfFile)
         {
@@ -69,6 +71,9 @@ namespace flowx::parser
                 case TokenKind::ClassKeyword:
                     classDeclarations.push_back(ClassDeclaration());
                     break;
+                case TokenKind::FnKeyword:
+                    functionDeclarations.push_back(FunctionDeclaration());
+                    break;
                 default:
                     const auto token = Peek();
                     throw ParserError(token.location, 
@@ -78,7 +83,7 @@ namespace flowx::parser
         }
         Expect(TokenKind::EndOfFile);
 
-        std::unique_ptr<ProgramNode> node = std::make_unique<ProgramNode>(location, structDeclarations, classDeclarations);
+        std::unique_ptr<ProgramNode> node = std::make_unique<ProgramNode>(location, structDeclarations, classDeclarations, functionDeclarations);
         return node;
     }
 
@@ -252,5 +257,183 @@ namespace flowx::parser
         }
 
         return result;
+    }
+
+    std::unique_ptr<ExpressionNode> Parser::Expression()
+    {
+        const SourceLocation location = GetLocation();
+
+        std::unique_ptr<EntryNode> entry = Entry();
+        std::vector<std::unique_ptr<OperationNode>> operations = Operations();
+
+        std::unique_ptr<ExpressionNode> node = std::make_unique<ExpressionNode>(location, std::move(entry), operations);
+        return node;
+    }
+
+    std::unique_ptr<EntryNode> Parser::Entry()
+    {
+        const SourceLocation location = GetLocation();
+
+        if (Peek().kind == TokenKind::Identifier)
+            return std::make_unique<EntryNode>(location, Identifier());
+
+        std::vector<std::unique_ptr<ExpressionNode>> expressions;
+        Expect(TokenKind::LeftParen);
+        
+        if (Peek().kind == TokenKind::RightParen)
+        {
+            Expect(TokenKind::RightParen);
+            return std::make_unique<EntryNode>(location, expressions);
+        }
+
+        expressions.push_back(Expression());
+        while (Peek().kind == TokenKind::Comma)
+        {
+            Expect(TokenKind::Comma);
+            expressions.push_back(Expression());
+        }
+
+        Expect(TokenKind::RightParen);
+        std::unique_ptr<EntryNode> node = std::make_unique<EntryNode>(location, expressions);
+        return node;
+    }
+
+    std::vector<std::unique_ptr<OperationNode>> Parser::Operations()
+    {
+        std::vector<std::unique_ptr<OperationNode>> operations;
+        while (Peek().kind == TokenKind::Dot || Peek().kind == TokenKind::Arrow || Peek().kind == TokenKind::Ellipsis || Peek().kind == TokenKind::AsKeyword)
+            operations.push_back(Operation());
+        return operations;
+    }
+
+    std::unique_ptr<ExpressionNode> Parser::ImplicitInputExpression()
+    {
+        const SourceLocation location = GetLocation();
+        std::unique_ptr<EntryNode> entry = std::make_unique<EntryNode>(location, Identifier());
+        std::vector<std::unique_ptr<OperationNode>> operations = Operations();
+        std::unique_ptr<ExpressionNode> node = std::make_unique<ExpressionNode>(location, std::move(entry), operations, true);
+        return node;
+    }
+
+    std::vector<std::unique_ptr<ExpressionNode>> Parser::Group()
+    {
+        std::vector<std::unique_ptr<ExpressionNode>> expressions;
+
+        Expect(TokenKind::LeftBrace);
+        expressions.push_back(ImplicitInputExpression());
+
+        while (Peek().kind == TokenKind::Comma)
+        {
+            Expect(TokenKind::Comma);
+            expressions.push_back(ImplicitInputExpression());
+        }
+
+        Expect(TokenKind::RightBrace);
+        return expressions;
+    }
+
+    std::unique_ptr<OperationNode> Parser::Operation()
+    {
+        const SourceLocation location = GetLocation();
+        const TokenKind tokenKind = Peek().kind;
+
+        switch (tokenKind)
+        {
+            case TokenKind::Dot:
+            {
+                Expect(TokenKind::Dot);
+                return std::make_unique<OperationNode>(location, OperationKind::MemberAccess, Identifier());
+            }
+            case TokenKind::Arrow:
+            {
+                Expect(TokenKind::Arrow);
+                if (Peek().kind == TokenKind::LeftBrace)
+                {
+                    std::vector<std::unique_ptr<ExpressionNode>> group = Group();
+                    return std::make_unique<OperationNode>(location, OperationKind::Broadcast, group);
+                }
+                return std::make_unique<OperationNode>(location, OperationKind::Call, Identifier());
+            }
+            case TokenKind::Ellipsis:
+            {
+                Expect(TokenKind::Ellipsis);
+                std::vector<std::unique_ptr<ExpressionNode>> group = Group();
+                return std::make_unique<OperationNode>(location, OperationKind::Distribution, group);
+            }
+            case TokenKind::AsKeyword:
+            {
+                Expect(TokenKind::AsKeyword);
+
+                if (Peek().kind != TokenKind::LeftParen)
+                    return std::make_unique<OperationNode>(location, OperationKind::Alias, Identifier());
+                
+                Expect(TokenKind::LeftParen);
+                
+                std::vector<std::string> identifiers;
+                identifiers.push_back(Identifier());
+                
+                while (Peek().kind == TokenKind::Comma)
+                {
+                    Expect(TokenKind::Comma);
+                    identifiers.push_back(Identifier());
+                }
+                Expect(TokenKind::RightParen);
+
+                return std::make_unique<OperationNode>(location, OperationKind::Alias, identifiers);
+            }
+            default:
+                throw ParserError(location, "Expected '.', '->', '...' or 'as'");
+        }
+    }
+
+    std::unique_ptr<FunctionDeclarationNode> Parser::FunctionDeclaration()
+    {
+        const SourceLocation location = GetLocation();
+        std::vector<std::unique_ptr<ExpressionNode>> expressions;
+
+        Expect(TokenKind::FnKeyword);
+        const std::string identifier = Identifier();
+        Expect(TokenKind::LeftParen);
+        std::vector<flowx::Parameter> inputs = ParameterList();
+        Expect(TokenKind::RightParen);
+        Expect(TokenKind::Arrow);
+        Expect(TokenKind::LeftParen);
+        std::vector<flowx::Parameter> outputs = ParameterList();
+        Expect(TokenKind::RightParen);
+        Expect(TokenKind::LeftBrace);
+        while (Peek().kind != TokenKind::RightBrace)
+        {
+            expressions.push_back(Expression());
+            Expect(TokenKind::Semicolon);
+        }
+        Expect(TokenKind::RightBrace);
+
+        std::unique_ptr<FunctionDeclarationNode> node = std::make_unique<FunctionDeclarationNode>(location, identifier, inputs, outputs, expressions);
+        return node;
+    }
+
+    std::vector<flowx::Parameter> Parser::ParameterList()
+    {
+        std::vector<flowx::Parameter> result;
+
+        if (Peek().kind != TokenKind::Identifier)
+            return result;
+
+        result.push_back(Parameter());
+        while (Peek().kind == TokenKind::Comma)
+        {
+            Expect(TokenKind::Comma);
+            result.push_back(Parameter());
+        }
+
+        return result;
+    }
+
+    flowx::Parameter Parser::Parameter()
+    {
+        const std::string identifier = Identifier();
+        Expect(TokenKind::Colon);
+        const flowx::TypeReference type = TypeReference();
+        return { identifier, type };
     }
 }

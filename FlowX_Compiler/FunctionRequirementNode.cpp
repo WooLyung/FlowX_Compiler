@@ -3,7 +3,11 @@
 
 namespace flowx::parser
 {
-    FunctionRequirementNode::FunctionRequirementNode(const SourceLocation location, const std::string identifier, const std::span<TypeReference> inputs, const std::span<TypeReference> outputs)
+    FunctionRequirementNode::FunctionRequirementNode(
+        const SourceLocation location,
+        const std::string identifier, 
+        const std::span<TypeReference>& inputs, 
+        const std::span<TypeReference>& outputs)
         : ParseTreeNode(location), identifier_(identifier)
     {
         this->inputs_.reserve(inputs.size());

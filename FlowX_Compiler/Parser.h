@@ -8,6 +8,9 @@
 #include "FieldNode.h"
 #include "ClassDeclarationNode.h"
 #include "FunctionRequirementNode.h"
+#include "FunctionDeclarationNode.h"
+#include "ExpressionNode.h"
+#include "OperationNode.h"
 
 namespace flowx::parser
 {
@@ -33,6 +36,13 @@ namespace flowx::parser
         std::unique_ptr<FieldNode> Field();
         std::unique_ptr<ClassDeclarationNode> ClassDeclaration();
         std::unique_ptr<FunctionRequirementNode> FunctionRequirement();
+        std::unique_ptr<FunctionDeclarationNode> FunctionDeclaration();
+        std::unique_ptr<ExpressionNode> Expression();
+        std::unique_ptr<EntryNode> Entry();
+        std::unique_ptr<ExpressionNode> ImplicitInputExpression();
+        std::unique_ptr<OperationNode> Operation();
+        std::vector<std::unique_ptr<OperationNode>> Operations();
+        std::vector<std::unique_ptr<ExpressionNode>> Group();
 
         const flowx::TypeReference TypeReference();
         const TypeName TypeName();
@@ -40,6 +50,8 @@ namespace flowx::parser
         const TypeModifierKind TypeModifier();
         const std::string Identifier();
         std::vector<flowx::TypeReference> TypeList();
+        std::vector<flowx::Parameter> ParameterList();
+        flowx::Parameter Parameter();
 
         std::span<const Token> tokens_;
         std::size_t position_ = 0;

@@ -11,7 +11,6 @@ namespace flowx
         AsKeyword,
         PrimitiveType,
         Identifier,
-        Underscore,
         LeftBrace,
         RightBrace,
         LessThan,

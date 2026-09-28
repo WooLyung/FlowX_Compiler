@@ -14,38 +14,38 @@ class Test<T> {
     fn hello(T, T, b) -> (b);
 }
 
-//fn identity(value: i4) -> (result: i4) {
-//    value as result;
-//}
+fn identity(value: i4) -> (result: i4) {
+    (a, (q, w));
+}
 
-//fn triple(value: i4) -> (first: i4, second: i4, third: i4) {
-//    value as first;
-//    value as second;
-//    value as third;
-//}
+fn triple(value: i4) -> (first: i4, second: i4, third: i4) {
+    value as first;
+    value as second;
+    value as third;
+}
 
-//fn swap(left: i4, right: i4) -> (first: i4, second: i4) {
-//    right as first;
-//    left as second;
-//}
+fn swap(left: i4, right: i4) -> (first: i4, second: i4) {
+    right as first;
+    left as second;
+}
 
-//fn makePair(left: i4, right: i4) -> (result: IntPair) {
-//    (left, right) -> IntPair as result;
-//}
+fn makePair(left: i4, right: i4) -> (result: IntPair) {
+    (left, right) -> IntPair as result;
+}
 
-//fn firstOf(left: i4, right: i4) -> (result: i4) {
-//    (left, right) -> makePair.first as result;
-//}
+fn firstOf(left: i4, right: i4) -> (result: i4) {
+    (left, right) -> makePair.first as result;
+}
 
-//fn middleOf(value: i4) -> (result: i4) {
-//    value -> triple as (_, middle, _);
-//    middle as result;
-//}
+fn middleOf(value: i4) -> (result: i4) {
+    value -> triple as (_, middle, _);
+    middle as result;
+}
 
-//fn main(x: i4, y: i4) -> (first: i4, second: i4, third: i4) {
-//    x -> triple ... { identity, _, identity } -> swap as Values as (left, right);
-//    Values -> { makePair, makePair } as (pairA, pairB);
-//    pairA.first -> identity as first;
-//    (pairB.second, y) -> firstOf as second;
-//    y -> middleOf as third;
-//}
+fn main(x: i4, y: i4) -> (first: i4, second: i4, third: i4) {
+    x -> triple ... { identity, _, identity } -> swap as Values as (left, right) -> test;
+    Values -> { makePair, makePair } as (pairA, pairB);
+    pairA.first -> identity as first;
+    (pairB.second, y) -> firstOf as second;
+    y -> middleOf as third;
+}

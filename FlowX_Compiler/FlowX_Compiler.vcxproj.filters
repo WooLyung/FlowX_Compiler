@@ -58,6 +58,30 @@
     <Filter Include="헤더 파일\SemanticAnalyzer">
       <UniqueIdentifier>{2bb9123d-abeb-4f67-9937-f03dc1757199}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Parser\ParseTree\Declaration">
+      <UniqueIdentifier>{3c69ae84-a8b8-431f-b8d9-663cd4019108}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Parser\ParseTreeNode\Declaration">
+      <UniqueIdentifier>{c9eb3467-0263-4e0b-99e4-c12ee8d43768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Parser\ParseTreeNode\Inner">
+      <UniqueIdentifier>{ea0c6bd4-859c-4c13-a528-e62d07e29060}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Parser\ParseTree\Inner">
+      <UniqueIdentifier>{02610162-94d8-4009-bb2f-ba2a68d0c48b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Parser\ParseTreeNode\Expression">
+      <UniqueIdentifier>{fac809b8-d03a-463b-b28f-b2b6566c2ecb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Parser\ParseTree\Expression">
+      <UniqueIdentifier>{e78360c0-905d-4cc7-b649-51210086ae37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Parser\ParseTree\Expression\Entry">
+      <UniqueIdentifier>{5d2d379e-2cfb-4cf8-b2f5-864ffd87e39d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Parser\ParseTreeNode\Expression\Entry">
+      <UniqueIdentifier>{527e08af-7cbb-4a0f-a678-68e8e6f27d54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,12 +102,6 @@
     <ClCompile Include="ProgramNode.cpp">
       <Filter>소스 파일\Parser\ParseTreeNode</Filter>
     </ClCompile>
-    <ClCompile Include="StructDeclarationNode.cpp">
-      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
-    </ClCompile>
-    <ClCompile Include="FieldNode.cpp">
-      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
-    </ClCompile>
     <ClCompile Include="SemanticAnalyzer.cpp">
       <Filter>소스 파일\SemanticAnalyzer</Filter>
     </ClCompile>
@@ -100,10 +118,25 @@
       <Filter>PCH</Filter>
     </ClCompile>
     <ClCompile Include="ClassDeclarationNode.cpp">
-      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+      <Filter>소스 파일\Parser\ParseTreeNode\Declaration</Filter>
+    </ClCompile>
+    <ClCompile Include="FunctionDeclarationNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode\Declaration</Filter>
+    </ClCompile>
+    <ClCompile Include="StructDeclarationNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode\Declaration</Filter>
+    </ClCompile>
+    <ClCompile Include="FieldNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode\Inner</Filter>
     </ClCompile>
     <ClCompile Include="FunctionRequirementNode.cpp">
-      <Filter>소스 파일\Parser\ParseTreeNode</Filter>
+      <Filter>소스 파일\Parser\ParseTreeNode\Inner</Filter>
+    </ClCompile>
+    <ClCompile Include="ExpressionNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode\Expression</Filter>
+    </ClCompile>
+    <ClCompile Include="EntryNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode\Expression\Entry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,9 +147,6 @@
     <ClInclude Include="CodeGenerator.h">
       <Filter>헤더 파일\CodeGenerator</Filter>
     </ClInclude>
-    <ClInclude Include="FieldNode.h">
-      <Filter>헤더 파일\Parser\ParseTree</Filter>
-    </ClInclude>
     <ClInclude Include="Parser.h">
       <Filter>헤더 파일\Parser</Filter>
     </ClInclude>
@@ -124,9 +154,6 @@
       <Filter>헤더 파일\Parser\ParseTree</Filter>
     </ClInclude>
     <ClInclude Include="ProgramNode.h">
-      <Filter>헤더 파일\Parser\ParseTree</Filter>
-    </ClInclude>
-    <ClInclude Include="StructDeclarationNode.h">
       <Filter>헤더 파일\Parser\ParseTree</Filter>
     </ClInclude>
     <ClInclude Include="Lexer.h">
@@ -156,11 +183,29 @@
     <ClInclude Include="SemanticModel.h">
       <Filter>헤더 파일\SemanticAnalyzer</Filter>
     </ClInclude>
+    <ClInclude Include="Parameter.h">
+      <Filter>헤더 파일\Element</Filter>
+    </ClInclude>
     <ClInclude Include="ClassDeclarationNode.h">
-      <Filter>헤더 파일\Parser\ParseTree</Filter>
+      <Filter>헤더 파일\Parser\ParseTree\Declaration</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionDeclarationNode.h">
+      <Filter>헤더 파일\Parser\ParseTree\Declaration</Filter>
+    </ClInclude>
+    <ClInclude Include="StructDeclarationNode.h">
+      <Filter>헤더 파일\Parser\ParseTree\Declaration</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldNode.h">
+      <Filter>헤더 파일\Parser\ParseTree\Inner</Filter>
     </ClInclude>
     <ClInclude Include="FunctionRequirementNode.h">
-      <Filter>헤더 파일\Parser\ParseTree</Filter>
+      <Filter>헤더 파일\Parser\ParseTree\Inner</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionNode.h">
+      <Filter>헤더 파일\Parser\ParseTree\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="EntryNode.h">
+      <Filter>헤더 파일\Parser\ParseTree\Expression\Entry</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

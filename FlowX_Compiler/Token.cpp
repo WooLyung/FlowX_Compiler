@@ -41,8 +41,6 @@ namespace flowx
                 return "RightParen";
             case TokenKind::Semicolon:
                 return "Semicolon";
-            case TokenKind::Underscore:
-                return "Underscore";
             case TokenKind::AsKeyword:
                 return "AsKeyword";
             case TokenKind::Arrow:

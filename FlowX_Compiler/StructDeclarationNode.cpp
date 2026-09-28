@@ -3,7 +3,7 @@
 
 namespace flowx::parser
 {
-    StructDeclarationNode::StructDeclarationNode(const SourceLocation location, const std::string identifier, const std::span<std::unique_ptr<FieldNode>> fields) 
+    StructDeclarationNode::StructDeclarationNode(const SourceLocation location, const std::string identifier, const std::span<std::unique_ptr<FieldNode>>& fields) 
         : ParseTreeNode(location), identifier_(identifier)
     {
         this->fields_.reserve(fields.size());
