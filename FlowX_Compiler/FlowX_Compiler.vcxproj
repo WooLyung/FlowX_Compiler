@@ -150,6 +150,10 @@
     <ClInclude Include="FieldNode.h" />
     <ClCompile Include="FunctionDeclarationNode.cpp" />
     <ClCompile Include="FunctionRequirementNode.cpp" />
+    <ClCompile Include="L2Graph.cpp" />
+    <ClInclude Include="BuiltinFunctions.h" />
+    <ClInclude Include="L3Graph.h" />
+    <ClCompile Include="L3Graph.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
@@ -175,6 +179,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClInclude Include="TypeTuple.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

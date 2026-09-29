@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "ProgramNode.h"
 #include "SemanticModel.h"
+#include "BuiltinFunctions.h"
 
 namespace flowx::semantic
 {
@@ -17,15 +18,28 @@ namespace flowx::semantic
 
     class SemanticAnalyzer
     {
+        friend class L3Graph;
+
     private:
         inline static const std::vector<std::string_view> reservedNames_ = {
             "_", 
             "pass"
         };
 
-        inline static const std::vector<std::string_view> builtinFunctionNames_ = {
-            "add"
-        };
+        inline static const std::vector<std::string_view> builtinFunctionNames_ = [] {
+            std::vector<std::string_view> names;
+            for (const auto& function : GetBuiltinFunctions())
+                names.push_back(function.name);
+            return names;
+        }();
+
+        void RegisterBuiltinFunctions(SemanticModel& model);
+        void GenerateMain(SemanticModel& model);
+        bool AcceptsType(const TypeReference& required, const TypeReference& actual, const SemanticModel& model) const;
+        const FunctionOverloadDefinition& ResolveOverload(const FunctionDefinition& function,
+            const std::vector<TypeReference>& inputs, SourceLocation location, const SemanticModel& model) const;
+        L3Graph& GenerateL3(unsigned int functionIndex, const FunctionOverloadDefinition& definition,
+            const std::vector<TypeReference>& inputs, SourceLocation location, SemanticModel& model);
 
         void ValidateFunctionName(const std::string& name, SourceLocation location);
         void ValidateName(const std::string& name, SourceLocation location);
@@ -41,6 +55,9 @@ namespace flowx::semantic
 
         void RegisterClasses(const parser::ProgramNode& program, SemanticModel& model);
         void ResolveClasses(const parser::ProgramNode& program, SemanticModel& model);
+        void ResolveClassTypes(SemanticModel& model);
+        bool MatchesRequirement(const FunctionRequirementDefinition& requirement, const FunctionOverloadDefinition& overload,
+            const ClassDefinition& definition, const TypeName& type) const;
         void ValidateRequirementType(const TypeReference& type, const ClassDefinition& definition, const SemanticModel& model, SourceLocation location);
 
     public:

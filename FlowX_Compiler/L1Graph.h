@@ -24,14 +24,21 @@ namespace flowx::semantic
         Unvisited, Visiting, Complete 
     };
 
+    struct L1Node;
+
+    struct L1Edge
+    {
+        L1Node* target;
+        std::size_t inputIndex;
+    };
+
     struct L1Node
     {
         L1NodeKind kind;
         SourceLocation location;
 
         std::string identifier;
-        std::vector<L1Node*> edges;
-        std::vector<L1Node*> branches;
+        std::vector<L1Edge> edges;
 
         bool isEntry = true;
     };
@@ -64,7 +71,7 @@ namespace flowx::semantic
         L1Graph& operator=(L1Graph&&) = delete;
 
         L1Node* AddNode(L1NodeKind kind, SourceLocation location, const std::string& identifier = "");
-        void Connect(L1Node* source, L1Node* target);
+        void Connect(L1Node* source, L1Node* target, std::size_t inputIndex = 0);
         const std::deque<L1Node>& GetNodes() const;
     };
 }

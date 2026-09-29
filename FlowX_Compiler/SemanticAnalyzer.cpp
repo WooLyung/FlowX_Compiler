@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SemanticAnalyzer.h"
 #include "L1Graph.h"
+#include "L2Graph.h"
 
 namespace flowx::semantic
 {
@@ -28,14 +29,135 @@ namespace flowx::semantic
         ResolveClasses(program, model);
 
         // 함수
+        RegisterBuiltinFunctions(model);
         ResolveFunctions(program, model);
+        ResolveClassTypes(model);
         for (const auto& declaration : program.GetFunctionDeclarations())
         {
-            // 함수를 1차 그래프로 생성, 별칭과 DAG 형태 검사
-            L1Graph graph(*declaration, model, reservedNames_, builtinFunctionNames_);
+            // 1차 그래프 생성: 별칭 검사, DAG 형태 검사
+            L1Graph l1graph(*declaration, model, reservedNames_, builtinFunctionNames_);
+
+            // 2차 그래프 생성: 입출력 연결, 미사용 노드 삭제
+            model.l2Graphs.push_back(std::make_unique<L2Graph>(l1graph, *declaration));
         }
 
+        GenerateMain(model);
         return model;
+    }
+
+    void SemanticAnalyzer::RegisterBuiltinFunctions(SemanticModel& model)
+    {
+        for (const auto& function : GetBuiltinFunctions())
+        {
+            const auto id = static_cast<unsigned int>(model.functions.size());
+            if (!model.symbols.Define(function.name, { SymbolKind::Function, id, function.location }))
+                throw SemanticError(function.location, "Builtin function name conflicts with a declaration");
+            model.functions.push_back(function);
+        }
+    }
+
+    bool SemanticAnalyzer::AcceptsType(const TypeReference& required, const TypeReference& actual, const SemanticModel& model) const
+    {
+        if (required.modifier != actual.modifier)
+            return false;
+        Symbol symbol;
+        if (required.kind == TypeReferenceKind::Named && model.symbols.Find(required.lexeme, symbol) && symbol.kind == SymbolKind::Class)
+        {
+            for (const auto& type : model.classes[symbol.definitionIndex].satisfyingTypes)
+                if (type.kind == actual.kind && (type.kind != TypeReferenceKind::Named || type.lexeme == actual.lexeme))
+                    return true;
+            return false;
+        }
+        return required.kind == actual.kind && (required.kind != TypeReferenceKind::Named || required.lexeme == actual.lexeme);
+    }
+
+    const FunctionOverloadDefinition& SemanticAnalyzer::ResolveOverload(const FunctionDefinition& function, const std::vector<TypeReference>& inputs, SourceLocation location, const SemanticModel& model) const
+    {
+        const FunctionOverloadDefinition* result = nullptr;
+        for (const auto& overload : function.overloads)
+        {
+            if (overload.inputs.size() != inputs.size())
+                continue;
+            bool matches = true;
+            for (std::size_t index = 0; index < inputs.size(); ++index)
+                if (!AcceptsType(overload.inputs[index].type, inputs[index], model))
+                {
+                    matches = false;
+                    break;
+                }
+            if (!matches)
+                continue;
+            if (result)
+                throw SemanticError(location, "Ambiguous overload for function '" + function.name + "'");
+            result = &overload;
+        }
+        if (!result)
+            throw SemanticError(location, "No matching overload for function '" + function.name + "'");
+        return *result;
+    }
+
+    void SemanticAnalyzer::GenerateMain(SemanticModel& model)
+    {
+        Symbol symbol;
+        if (!model.symbols.Find("main", symbol) || symbol.kind != SymbolKind::Function)
+            throw SemanticError({}, "Entry function 'main' is not defined");
+
+        const auto& function = model.functions[symbol.definitionIndex];
+        if (function.overloads.size() != 1)
+            throw SemanticError(function.location, "Entry function 'main' must have exactly one overload");
+
+        const auto& definition = function.overloads.front();
+        for (const auto* parameters : { &definition.inputs, &definition.outputs })
+        {
+            for (const auto& parameter : *parameters)
+            {
+                Symbol type;
+                if (parameter.type.kind == TypeReferenceKind::Named && model.symbols.Find(parameter.type.lexeme, type) && type.kind == SymbolKind::Class)
+                    throw SemanticError(definition.location, "Entry function 'main' cannot use class types");
+            }
+        }
+
+        std::vector<TypeReference> inputs;
+        for (const auto& parameter : definition.inputs)
+            inputs.push_back(parameter.type);
+
+        GenerateL3(symbol.definitionIndex, definition, inputs, definition.location, model);
+    }
+
+    L3Graph& SemanticAnalyzer::GenerateL3(unsigned int functionIndex, const FunctionOverloadDefinition& definition, const std::vector<TypeReference>& inputs, SourceLocation location, SemanticModel& model)
+    {
+        for (const auto& graph : model.l3Graphs)
+        {
+            if (graph->functionIndex_ != functionIndex || graph->declarationIndex_ != definition.declarationIndex || graph->inputs_.size() != inputs.size())
+                continue;
+
+            bool matches = true;
+            for (std::size_t index = 0; index < inputs.size(); ++index)
+            {
+                if (!AcceptsType(graph->inputs_[index], inputs[index], model))
+                {
+                    matches = false;
+                    break;
+                }
+            }
+
+            if (!matches)
+                continue;
+
+            if (!graph->complete_)
+                throw SemanticError(location, "Recursive call to function '" + model.functions[functionIndex].name + "' with the same input types");
+            
+            return *graph;
+        }
+
+        auto graph = std::make_unique<L3Graph>(functionIndex, definition.declarationIndex.value(), inputs);
+        auto& result = *graph;
+        model.l3Graphs.push_back(std::move(graph));
+
+        result.Build(*model.l2Graphs.at(definition.declarationIndex.value()), definition, *this, model);
+        result.complete_ = true;
+
+        return result;
     }
 
     void SemanticAnalyzer::RegisterStructs(const parser::ProgramNode& program, SemanticModel& model)
@@ -116,7 +238,7 @@ namespace flowx::semantic
 
             const unsigned int id = static_cast<unsigned int>(model.classes.size());
             model.symbols.Define(name, { SymbolKind::Class, id, location });
-            model.classes.push_back({ name, location, declaration->GetGeneric(), {} });
+            model.classes.push_back({ name, location, declaration->GetGeneric(), {}, {} });
         }
     }
 
@@ -194,6 +316,84 @@ namespace flowx::semantic
                 }
 
                 definition.requirements.push_back({ name, location, inputs, outputs });
+            }
+        }
+    }
+
+    bool SemanticAnalyzer::MatchesRequirement(const FunctionRequirementDefinition& requirement,
+        const FunctionOverloadDefinition& overload, const ClassDefinition& definition, const TypeName& type) const
+    {
+        if (requirement.inputs.size() != overload.inputs.size() || requirement.outputs.size() != overload.outputs.size())
+            return false;
+
+        const auto matches = [&](const TypeReference& required, const TypeReference& actual)
+        {
+            const bool generic = required.kind == TypeReferenceKind::Named && required.lexeme == definition.generic;
+            const auto kind = generic ? type.kind : required.kind;
+            const auto& name = generic ? type.lexeme : required.lexeme;
+            return actual.kind == kind && actual.modifier == required.modifier &&
+                (kind != TypeReferenceKind::Named || actual.lexeme == name);
+        };
+
+        for (std::size_t index = 0; index < requirement.inputs.size(); ++index)
+            if (!matches(requirement.inputs[index], overload.inputs[index].type))
+                return false;
+
+        for (std::size_t index = 0; index < requirement.outputs.size(); ++index)
+            if (!matches(requirement.outputs[index], overload.outputs[index].type))
+                return false;
+
+        return true;
+    }
+
+    void SemanticAnalyzer::ResolveClassTypes(SemanticModel& model)
+    {
+        const auto& structs = model.structs;
+        std::vector<TypeName> types = {
+            { TypeReferenceKind::Int4, "i4" },
+            { TypeReferenceKind::Int8, "i8" },
+            { TypeReferenceKind::Float4, "f4" },
+            { TypeReferenceKind::Float8, "f8" },
+            { TypeReferenceKind::Bool, "b" },
+            { TypeReferenceKind::Char, "c" }
+        };
+
+        for (const auto& definition : structs)
+            types.push_back({ TypeReferenceKind::Named, definition.name });
+
+        for (auto& definition : model.classes)
+        {
+            definition.satisfyingTypes.clear();
+            for (const auto& type : types)
+            {
+                bool satisfied = true;
+                for (const auto& requirement : definition.requirements)
+                {
+                    Symbol symbol;
+                    if (!model.symbols.Find(requirement.name, symbol) || symbol.kind != SymbolKind::Function)
+                    {
+                        satisfied = false;
+                        break;
+                    }
+
+                    bool matched = false;
+                    for (const auto& overload : model.functions[symbol.definitionIndex].overloads)
+                    {
+                        if (MatchesRequirement(requirement, overload, definition, type))
+                        {
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (!matched)
+                    {
+                        satisfied = false;
+                        break;
+                    }
+                }
+                if (satisfied)
+                    definition.satisfyingTypes.push_back(type);
             }
         }
     }

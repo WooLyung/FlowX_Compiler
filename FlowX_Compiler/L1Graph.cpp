@@ -8,13 +8,13 @@ namespace flowx::semantic
 {
     L1Node* L1Graph::AddNode(L1NodeKind kind, SourceLocation location, const std::string& identifier)
     {
-        nodes_.push_back({ kind, location, identifier, {}, {} });
+        nodes_.push_back({ kind, location, identifier, {} });
         return &nodes_.back();
     }
 
-    void L1Graph::Connect(L1Node* source, L1Node* target)
+    void L1Graph::Connect(L1Node* source, L1Node* target, std::size_t inputIndex)
     {
-        source->edges.push_back(target);
+        source->edges.push_back({ target, inputIndex });
         target->isEntry = false;
     }
 
@@ -53,7 +53,7 @@ namespace flowx::semantic
             {
                 const auto& source = aliases.find(node.identifier)->second;
                 for (const auto& next : node.edges)
-                    Connect(source, next);
+                    Connect(source, next.target, next.inputIndex);
             }
         }
 
@@ -96,20 +96,12 @@ namespace flowx::semantic
     {
         states[node] = VisitState::Visiting;
 
-        for (const auto& next : node->branches)
-        {
-            if (states[next] == VisitState::Visiting)
-                throw SemanticError(node->location, "Exist cyclic expression");
-            if (states[next] == VisitState::Unvisited)
-                VisitNode(next, states);
-        }
-
         for (const auto& next : node->edges)
         {
-            if (states[next] == VisitState::Visiting)
+            if (states[next.target] == VisitState::Visiting)
                 throw SemanticError(node->location, "Exist cyclic expression");
-            if (states[next] == VisitState::Unvisited)
-                VisitNode(next, states);
+            if (states[next.target] == VisitState::Unvisited)
+                VisitNode(next.target, states);
         }
 
         states[node] = VisitState::Complete;
@@ -129,8 +121,10 @@ namespace flowx::semantic
         }
 
         auto* merge = AddNode(L1NodeKind::Merge, location);
+        std::size_t inputIndex = 0;
         for (const auto& expression : entry.GetExpressions())
-            Connect(BuildExpression(*expression, model), merge);
+            Connect(BuildExpression(*expression, model), merge, inputIndex++);
+
         return merge;
     }
 
@@ -196,6 +190,8 @@ namespace flowx::semantic
                     const bool distribute = operation->GetKind() == parser::OperationKind::Distribution;
                     auto* block = AddNode(distribute ? L1NodeKind::Distribution : L1NodeKind::Broadcast, location);
                     Connect(current, block);
+                    auto* merge = AddNode(L1NodeKind::Merge, location);
+                    std::size_t inputIndex = 0;
                     for (const auto& branch : operation->GetGroup())
                     {
                         const auto& name = branch->GetEntry()->GetIdentifier();
@@ -209,11 +205,11 @@ namespace flowx::semantic
                         else
                             node = BuildCall(name, branch->GetLocation(), nullptr, model);
 
-                        block->branches.push_back(node);
-                        node->isEntry = false;
-                        BuildOperations(*branch, node, model);
+                        Connect(block, node);
+                        auto* result = BuildOperations(*branch, node, model);
+                        Connect(result, merge, inputIndex++);
                     }
-                    current = block;
+                    current = merge;
                     break;
                 }
                 case parser::OperationKind::Alias:
@@ -232,10 +228,8 @@ namespace flowx::semantic
                                 alias = AddNode(L1NodeKind::Discard, location, "_");
                             else
                                 alias = BuildAlias(name, location, nullptr);
-                            split->branches.push_back(alias);
-                            alias->isEntry = false;
+                            Connect(split, alias);
                         }
-                        current = split;
                     }
                     break;
                 }

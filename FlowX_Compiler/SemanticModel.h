@@ -3,6 +3,8 @@
 #include "SymbolTable.h"
 #include "TypeReference.h"
 #include "Parameter.h"
+#include "L2Graph.h"
+#include "L3Graph.h"
 
 namespace flowx::semantic
 {
@@ -35,12 +37,13 @@ namespace flowx::semantic
         SourceLocation location;
         std::string generic;
         std::vector<FunctionRequirementDefinition> requirements;
+        std::vector<TypeName> satisfyingTypes;
     };
 
     struct FunctionOverloadDefinition
     {
         SourceLocation location;
-        unsigned int declarationIndex;
+        std::optional<unsigned int> declarationIndex;
         std::vector<Parameter> inputs;
         std::vector<Parameter> outputs;
     };
@@ -58,5 +61,7 @@ namespace flowx::semantic
         std::vector<StructDefinition> structs;
         std::vector<ClassDefinition> classes;
         std::vector<FunctionDefinition> functions;
+        std::vector<std::unique_ptr<L2Graph>> l2Graphs;
+        std::vector<std::unique_ptr<L3Graph>> l3Graphs;
     };
 }
