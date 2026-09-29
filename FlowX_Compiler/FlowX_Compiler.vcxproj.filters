@@ -147,6 +147,12 @@
     <ClCompile Include="L2Graph.cpp">
       <Filter>소스 파일\SemanticAnalyzer\Graph</Filter>
     </ClCompile>
+    <ClCompile Include="L3Graph.cpp">
+      <Filter>소스 파일\SemanticAnalyzer\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="L4Graph.cpp">
+      <Filter>소스 파일\SemanticAnalyzer\Graph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\sample.flowx" />
@@ -226,6 +232,15 @@
       <Filter>헤더 파일\SemanticAnalyzer</Filter>
     </ClInclude>
     <ClInclude Include="TypeTuple.h">
+      <Filter>헤더 파일\SemanticAnalyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="L3Graph.h">
+      <Filter>헤더 파일\SemanticAnalyzer\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="L4Graph.h">
+      <Filter>헤더 파일\SemanticAnalyzer\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="BuiltinFunctions.h">
       <Filter>헤더 파일\SemanticAnalyzer</Filter>
     </ClInclude>
   </ItemGroup>

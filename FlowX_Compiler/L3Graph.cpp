@@ -58,10 +58,13 @@ namespace flowx::semantic
                 const auto* previous = nodes.at(source.first);
                 if (previous->kind == L3NodeKind::Discard && original->kind == L2NodeKind::Merge)
                     continue;
+
                 if (source.second >= previous->types.elements.size())
                     throw SemanticError(original->location, "Invalid source output slot");
+
                 if (original->kind != L2NodeKind::Merge && index != inputs.elements.size())
                     throw SemanticError(original->location, "Missing input slot");
+
                 inputs.elements.push_back(previous->types.elements[source.second]);
             }
 

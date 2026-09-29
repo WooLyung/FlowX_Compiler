@@ -154,6 +154,8 @@
     <ClInclude Include="BuiltinFunctions.h" />
     <ClInclude Include="L3Graph.h" />
     <ClCompile Include="L3Graph.cpp" />
+    <ClCompile Include="L4Graph.cpp" />
+    <ClInclude Include="L4Graph.h" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />

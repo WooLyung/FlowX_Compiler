@@ -41,7 +41,21 @@ namespace flowx::semantic
             model.l2Graphs.push_back(std::make_unique<L2Graph>(l1graph, *declaration));
         }
 
+        // 3차 그래프 생성: 타입 추론, 재귀 검사
         GenerateMain(model);
+
+        // 4차 그래프 생성: 단일 값을 가지는 노드로 정리
+        std::map<const L3Graph*, L4Graph*> functions;
+        for (const auto& graph : model.l3Graphs)
+        {
+            auto result = std::make_unique<L4Graph>(graph->GetFunctionIndex(), graph->GetDeclarationIndex());
+            functions.emplace(graph.get(), result.get());
+            model.l4Graphs.push_back(std::move(result));
+        }
+
+        for (const auto& graph : model.l3Graphs)
+            functions.at(graph.get())->Build(*graph, functions);
+
         return model;
     }
 

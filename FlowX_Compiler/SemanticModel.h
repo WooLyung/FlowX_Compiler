@@ -5,6 +5,7 @@
 #include "Parameter.h"
 #include "L2Graph.h"
 #include "L3Graph.h"
+#include "L4Graph.h"
 
 namespace flowx::semantic
 {
@@ -63,5 +64,6 @@ namespace flowx::semantic
         std::vector<FunctionDefinition> functions;
         std::vector<std::unique_ptr<L2Graph>> l2Graphs;
         std::vector<std::unique_ptr<L3Graph>> l3Graphs;
+        std::vector<std::unique_ptr<L4Graph>> l4Graphs;
     };
 }
