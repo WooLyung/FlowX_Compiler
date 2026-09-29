@@ -76,11 +76,11 @@
     <Filter Include="헤더 파일\Parser\ParseTree\Expression">
       <UniqueIdentifier>{e78360c0-905d-4cc7-b649-51210086ae37}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일\Parser\ParseTree\Expression\Entry">
-      <UniqueIdentifier>{5d2d379e-2cfb-4cf8-b2f5-864ffd87e39d}</UniqueIdentifier>
+    <Filter Include="헤더 파일\SemanticAnalyzer\Graph">
+      <UniqueIdentifier>{a90e698a-7948-4b03-a8c8-5544e138d451}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Parser\ParseTreeNode\Expression\Entry">
-      <UniqueIdentifier>{527e08af-7cbb-4a0f-a678-68e8e6f27d54}</UniqueIdentifier>
+    <Filter Include="소스 파일\SemanticAnalyzer\Graph">
+      <UniqueIdentifier>{7a6e82d0-0e32-40cc-9f68-32160c800baa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -136,7 +136,13 @@
       <Filter>소스 파일\Parser\ParseTreeNode\Expression</Filter>
     </ClCompile>
     <ClCompile Include="EntryNode.cpp">
-      <Filter>소스 파일\Parser\ParseTreeNode\Expression\Entry</Filter>
+      <Filter>소스 파일\Parser\ParseTreeNode\Expression</Filter>
+    </ClCompile>
+    <ClCompile Include="L1Graph.cpp">
+      <Filter>소스 파일\SemanticAnalyzer\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="OperationNode.cpp">
+      <Filter>소스 파일\Parser\ParseTreeNode\Expression</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -205,7 +211,16 @@
       <Filter>헤더 파일\Parser\ParseTree\Expression</Filter>
     </ClInclude>
     <ClInclude Include="EntryNode.h">
-      <Filter>헤더 파일\Parser\ParseTree\Expression\Entry</Filter>
+      <Filter>헤더 파일\Parser\ParseTree\Expression</Filter>
+    </ClInclude>
+    <ClInclude Include="L1Graph.h">
+      <Filter>헤더 파일\SemanticAnalyzer\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="L2Graph.h">
+      <Filter>헤더 파일\SemanticAnalyzer\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="OperationNode.h">
+      <Filter>헤더 파일\Parser\ParseTree\Expression</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

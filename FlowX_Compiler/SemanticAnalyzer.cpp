@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "SemanticAnalyzer.h"
+#include "L1Graph.h"
 
 namespace flowx::semantic
 {
@@ -28,6 +29,11 @@ namespace flowx::semantic
 
         // 함수
         ResolveFunctions(program, model);
+        for (const auto& declaration : program.GetFunctionDeclarations())
+        {
+            // 함수를 1차 그래프로 생성, 별칭과 DAG 형태 검사
+            L1Graph graph(*declaration, model, reservedNames_, builtinFunctionNames_);
+        }
 
         return model;
     }
@@ -147,7 +153,7 @@ namespace flowx::semantic
             {
                 const auto& name = requirement->GetIdentifier();
                 const auto location = requirement->GetLocation();
-                ValidateName(name, location);
+                ValidateFunctionName(name, location);
                 if (name == definition.generic ||
                     (model.symbols.Find(name, symbol) &&
                         (symbol.kind == SymbolKind::Struct || symbol.kind == SymbolKind::Class)))
@@ -194,6 +200,14 @@ namespace flowx::semantic
 
     void SemanticAnalyzer::ValidateName(const std::string& name, SourceLocation location)
     {
+        ValidateFunctionName(name, location);
+        for (const auto builtin : builtinFunctionNames_)
+            if (name == builtin)
+                throw SemanticError(location, "Builtin function name '" + name + "' cannot be used as a declaration name");
+    }
+
+    void SemanticAnalyzer::ValidateFunctionName(const std::string& name, SourceLocation location)
+    {
         // 예약어인지 확인
         for (const auto reserved : reservedNames_)
             if (name == reserved)
@@ -209,7 +223,7 @@ namespace flowx::semantic
             const auto& declaration = declarations[index];
             const auto& name = declaration->GetIdentifier();
             const auto location = declaration->GetLocation();
-            ValidateName(name, location);
+            ValidateFunctionName(name, location);
 
             Symbol symbol;
             const bool exists = model.symbols.Find(name, symbol);

@@ -154,6 +154,9 @@
     <ClCompile Include="Lexer.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="SemanticAnalyzer.cpp" />
+    <ClCompile Include="L1Graph.cpp" />
+    <ClInclude Include="L1Graph.h" />
+    <ClInclude Include="L2Graph.h" />
     <ClCompile Include="CodeGenerator.cpp" />
     <ClCompile Include="ExpressionNode.cpp" />
     <ClCompile Include="OperationNode.cpp" />

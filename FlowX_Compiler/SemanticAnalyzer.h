@@ -23,6 +23,11 @@ namespace flowx::semantic
             "pass"
         };
 
+        inline static const std::vector<std::string_view> builtinFunctionNames_ = {
+            "add"
+        };
+
+        void ValidateFunctionName(const std::string& name, SourceLocation location);
         void ValidateName(const std::string& name, SourceLocation location);
         void ResolveFunctions(const parser::ProgramNode& program, SemanticModel& model);
         void ValidateParameters(const std::vector<Parameter>& parameters, const SemanticModel& model, SourceLocation location, const std::string& direction);

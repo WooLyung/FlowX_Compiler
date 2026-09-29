@@ -8,8 +8,8 @@ namespace flowx::parser
 
     enum class OperationKind 
     {
-        MemberAccess, 
-        Call, 
+        MemberAccess,
+        Call,
         Broadcast,
         Distribution,
         Alias
@@ -17,8 +17,8 @@ namespace flowx::parser
 
     enum class OperationTargetKind 
     { 
-        Identifier, 
-        Group, 
+        Identifier,
+        Group,
         IdentifierList 
     };
 

@@ -14,10 +14,6 @@ class Test<T> {
     fn hello(T, T, b) -> (b);
 }
 
-fn identity(value: i4) -> (result: i4) {
-    (a, (q, w));
-}
-
 fn triple(value: i4) -> (first: i4, second: i4, third: i4) {
     value as first;
     value as second;
@@ -43,9 +39,9 @@ fn middleOf(value: i4) -> (result: i4) {
 }
 
 fn main(x: i4, y: i4) -> (first: i4, second: i4, third: i4) {
-    x -> triple ... { identity, _, identity } -> swap as Values as (left, right) -> test;
+    x -> triple ... { pass, _, pass } -> swap as Values as (left, right) -> pass;
     Values -> { makePair, makePair } as (pairA, pairB);
-    pairA.first -> identity as first;
+    pairA.first -> pass as first;
     (pairB.second, y) -> firstOf as second;
     y -> middleOf as third;
 }
