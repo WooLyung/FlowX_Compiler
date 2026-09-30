@@ -104,6 +104,7 @@ namespace flowx::semantic
                 {
                     auto* call = AddNode(node->kind == L3NodeKind::Call ? L4NodeKind::Call : L4NodeKind::BuiltinCall,
                         node->location, node->id);
+                    call->builtinIndex = node->builtinIndex;
                     if (node->function)
                         call->function = functions.at(node->function);
                     for (std::size_t index = 0; index < inputs.size(); ++index)

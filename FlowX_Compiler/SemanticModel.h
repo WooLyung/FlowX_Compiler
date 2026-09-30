@@ -56,12 +56,19 @@ namespace flowx::semantic
         std::vector<FunctionOverloadDefinition> overloads;
     };
 
+    struct BuiltinFunctionReference
+    {
+        unsigned int functionIndex;
+        std::size_t overloadIndex;
+    };
+
     struct SemanticModel
     {
         SymbolTable symbols;
         std::vector<StructDefinition> structs;
         std::vector<ClassDefinition> classes;
         std::vector<FunctionDefinition> functions;
+        std::vector<BuiltinFunctionReference> usedBuiltins;
         std::vector<std::unique_ptr<L2Graph>> l2Graphs;
         std::vector<std::unique_ptr<L3Graph>> l3Graphs;
         std::vector<std::unique_ptr<L4Graph>> l4Graphs;

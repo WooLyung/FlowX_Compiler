@@ -247,6 +247,22 @@ namespace flowx::semantic
         else
         {
             node.kind = L3NodeKind::BuiltinCall;
+            const auto& overloads = model.functions[symbol.definitionIndex].overloads;
+            const auto overloadIndex = static_cast<std::size_t>(&overload - overloads.data());
+            for (std::size_t index = 0; index < model.usedBuiltins.size(); ++index)
+            {
+                const auto& builtin = model.usedBuiltins[index];
+                if (builtin.functionIndex == symbol.definitionIndex && builtin.overloadIndex == overloadIndex)
+                {
+                    node.builtinIndex = index;
+                    break;
+                }
+            }
+            if (!node.builtinIndex)
+            {
+                node.builtinIndex = model.usedBuiltins.size();
+                model.usedBuiltins.push_back({ symbol.definitionIndex, overloadIndex });
+            }
             for (const auto& parameter : overload.outputs)
                 results.elements.emplace_back(parameter.type);
         }

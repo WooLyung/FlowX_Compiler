@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "CodeGenerator.h"
+#include "BuiltinFunctions.h"
 
 namespace flowx::codegenerator
 {
@@ -63,6 +64,7 @@ namespace flowx::codegenerator
         std::ostringstream ir;
 
         GenerateTypes(ir);
+        GenerateBuiltinFunctions(ir);
 
         const std::string text = ir.str();
         std::ofstream output(outputPath, std::ios::binary | std::ios::trunc);
@@ -72,6 +74,21 @@ namespace flowx::codegenerator
         output.close();
         if (!output)
             throw CodeGeneratorError("Failed to write LLVM output file: " + outputPath.string());
+    }
+
+    void CodeGenerator::GenerateBuiltinFunctions(std::ostream& output) const
+    {
+        // 사용하는 내장 함수를 생성
+        const auto& builtins = GetBuiltinFunctions();
+
+        for (const auto& builtin : model_.usedBuiltins)
+        {
+            const unsigned int& functionIndex = builtin.functionIndex;
+            const std::size_t& overloadIndex = builtin.overloadIndex;
+
+            const auto& def = builtins[functionIndex].overloads[overloadIndex];
+            output << '\n' << def.code << '\n';
+        }
     }
 
     void CodeGenerator::GenerateTypes(std::ostream& output) const

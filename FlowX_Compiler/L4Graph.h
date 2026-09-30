@@ -33,6 +33,7 @@ namespace flowx::semantic
 
         const L4Graph* function = nullptr;
         ConstantValue constant;
+        std::optional<std::size_t> builtinIndex;
     };
 
     class L4Graph

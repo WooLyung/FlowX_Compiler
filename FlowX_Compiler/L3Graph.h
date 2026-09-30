@@ -32,6 +32,7 @@ namespace flowx::semantic
         TypeTuple types;
         const L3Graph* function = nullptr;
         ConstantValue constant;
+        std::optional<std::size_t> builtinIndex;
     };
 
     class L3Graph

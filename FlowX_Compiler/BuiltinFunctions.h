@@ -1,18 +1,36 @@
 #pragma once
-#include "SemanticModel.h"
+#include <string>
+#include <vector>
+#include "TypeReference.h"
 
-namespace flowx::semantic
+namespace flowx
 {
-    inline const std::vector<FunctionDefinition>& GetBuiltinFunctions()
+    struct BuiltinOverloadDefinition
     {
-        static const std::vector<FunctionDefinition> functions = {
-            { "add", {}, {
-                { {}, std::nullopt,
-                    { { "left", { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } },
-                      { "right", { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } } },
-                    { { "result", { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } } } }
+        std::vector<TypeReference> inputs;
+        std::vector<TypeReference> outputs;
+        std::string code;
+    };
+
+    struct BuiltinFunctionDefinition
+    {
+        std::string name;
+        std::vector<BuiltinOverloadDefinition> overloads;
+    };
+
+    inline const std::vector<BuiltinFunctionDefinition>& GetBuiltinFunctions()
+    {
+        static const std::vector<BuiltinFunctionDefinition> functions = {
+            { "add", {
+                {
+                    { { TypeReferenceKind::Int4, "int4", TypeModifierKind::None },
+                      { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } },
+                    { { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } },
+                    "TESTCODE"
+                }
             } }
         };
+
         return functions;
     }
 }

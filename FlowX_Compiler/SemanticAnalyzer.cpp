@@ -64,9 +64,20 @@ namespace flowx::semantic
         for (const auto& function : GetBuiltinFunctions())
         {
             const auto id = static_cast<unsigned int>(model.functions.size());
-            if (!model.symbols.Define(function.name, { SymbolKind::Function, id, function.location }))
-                throw SemanticError(function.location, "Builtin function name conflicts with a declaration");
-            model.functions.push_back(function);
+            if (!model.symbols.Define(function.name, { SymbolKind::Function, id, {} }))
+                throw SemanticError({}, "Builtin function name conflicts with a declaration");
+
+            FunctionDefinition definition{ function.name, {}, {} };
+            for (const auto& overload : function.overloads)
+            {
+                FunctionOverloadDefinition signature{ {}, std::nullopt, {}, {} };
+                for (const auto& type : overload.inputs)
+                    signature.inputs.push_back({ "", type });
+                for (const auto& type : overload.outputs)
+                    signature.outputs.push_back({ "", type });
+                definition.overloads.push_back(std::move(signature));
+            }
+            model.functions.push_back(std::move(definition));
         }
     }
 
