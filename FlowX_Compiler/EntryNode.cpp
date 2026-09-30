@@ -6,6 +6,21 @@ namespace flowx::parser
 {
     EntryNode::~EntryNode() = default;
 
+    EntryNode::EntryNode(const SourceLocation location, const ConstantValue& constant)
+        : ParseTreeNode(location), isTerminal_(true), identifier_(""), constant_(constant)
+    {
+    }
+
+    bool EntryNode::IsConstant() const
+    {
+        return !std::holds_alternative<std::monostate>(constant_);
+    }
+
+    const ConstantValue& EntryNode::GetConstant() const
+    {
+        return constant_;
+    }
+
     bool EntryNode::IsTerminal() const
     {
         return isTerminal_;

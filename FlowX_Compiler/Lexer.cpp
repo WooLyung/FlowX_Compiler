@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Lexer.h"
 #include "PrimitiveType.h"
+#include <charconv>
+#include <cstdint>
 
 namespace flowx::lexer
 {
@@ -87,10 +89,61 @@ namespace flowx::lexer
             kind = TokenKind::FnKeyword;
         else if (lexeme == "as")
             kind = TokenKind::AsKeyword;
+        else if (lexeme == "true" || lexeme == "false")
+            kind = TokenKind::BoolLiteral;
         else if (IsPrimitiveType(lexeme))
             kind = TokenKind::PrimitiveType;
 
         return { kind, std::move(lexeme), location };
+    }
+
+    Token Lexer::ReadNumber()
+    {
+        const auto start = position_;
+        const auto location = location_;
+        if (Peek() == '-')
+            Advance();
+        while (Peek() >= '0' && Peek() <= '9')
+            Advance();
+
+        bool floating = false;
+        if (Peek() == '.' && source_.size() - position_ >= 2 && source_[position_ + 1] >= '0' && source_[position_ + 1] <= '9')
+        {
+            floating = true;
+            Advance();
+            while (Peek() >= '0' && Peek() <= '9')
+                Advance();
+        }
+        bool wide = Peek() == 'l';
+        if (wide)
+            Advance();
+        if (IsIdentifierContinuation(Peek()))
+            throw LexerError(location, "Invalid numeric literal suffix");
+
+        const auto kind = floating ? (wide ? TokenKind::Float8Literal : TokenKind::Float4Literal) : (wide ? TokenKind::Int8Literal : TokenKind::Int4Literal);
+        const auto lexeme = source_.substr(start, position_ - start);
+        const auto* first = lexeme.data();
+        const auto* last = first + lexeme.size() - (wide ? 1 : 0);
+        const auto validate = [&](auto value)
+        {
+            const auto result = std::from_chars(first, last, value);
+            if (result.ec != std::errc{} || result.ptr != last)
+            {
+                const auto type = floating ? (wide ? "float8" : "float4") : (wide ? "int8" : "int4");
+                throw LexerError(location, "Numeric literal '" + lexeme + "' cannot be represented as " + type);
+            }
+        };
+        if (floating)
+        {
+            if (wide) validate(double{});
+            else validate(float{});
+        }
+        else
+        {
+            if (wide) validate(std::int64_t{});
+            else validate(std::int32_t{});
+        }
+        return { kind, lexeme, location };
     }
 
     std::vector<Token> Lexer::Tokenize()
@@ -111,6 +164,9 @@ namespace flowx::lexer
         SkipWhitespace();
         if (AtEnd())
             return { TokenKind::EndOfFile, "", location_ };
+        if ((Peek() >= '0' && Peek() <= '9') ||
+            (Peek() == '-' && source_.size() - position_ >= 2 && source_[position_ + 1] >= '0' && source_[position_ + 1] <= '9'))
+            return ReadNumber();
         if (IsIdentifierStart(Peek()))
             return ReadIdentifier();
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Token.h"
+#include "ConstantValue.h"
 #include <deque>
 
 namespace flowx::parser
@@ -16,7 +17,7 @@ namespace flowx::semantic
 
     enum class L1NodeKind
     {
-        AliasReference, Call, Merge, Split, Broadcast, Distribution, MemberAccess, Alias, Discard
+        AliasReference, Call, Merge, Split, Broadcast, Distribution, MemberAccess, Alias, Discard, Constant
     };
 
     enum class VisitState 
@@ -41,6 +42,7 @@ namespace flowx::semantic
         std::vector<L1Edge> edges;
 
         bool isEntry = true;
+        ConstantValue constant;
     };
 
     class L1Graph

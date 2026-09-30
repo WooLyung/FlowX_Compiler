@@ -4,7 +4,7 @@ namespace flowx
 {
     enum class TypeReferenceKind
     {
-        Int4, Int8, Float4, Float8, Bool, Char, Named
+        Int4, Int8, Float4, Float8, Bool, Named
     };
 
     enum class TypeModifierKind
@@ -41,9 +41,6 @@ namespace flowx
                     break;
                 case TypeReferenceKind::Float8:
                     str = "Float8";
-                    break;
-                case TypeReferenceKind::Char:
-                    str = "Char";
                     break;
                 case TypeReferenceKind::Bool:
                     str = "Bool";

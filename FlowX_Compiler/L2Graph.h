@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Token.h"
+#include "ConstantValue.h"
 #include <deque>
 
 namespace flowx::parser
@@ -16,7 +17,7 @@ namespace flowx::semantic
 
     enum class L2NodeKind
     {
-        Input, Output, EmptyInput, Call, Merge, Split, Broadcast, Distribution, MemberAccess, Discard
+        Input, Output, EmptyInput, Call, Merge, Split, Broadcast, Distribution, MemberAccess, Discard, Constant
     };
 
     struct L2Node;
@@ -36,6 +37,7 @@ namespace flowx::semantic
         std::string id;
         std::vector<L2Edge> edges;
         std::size_t outputCount = 0;
+        ConstantValue constant;
     };
 
     class L2Graph

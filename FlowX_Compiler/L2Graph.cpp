@@ -62,7 +62,7 @@ namespace flowx::semantic
     {
         std::map<const L1Node*, L2Node*> nodes;
         std::unordered_set<const L1Node*> visited;
-        std::vector<const L1Node*> emptyInputs;
+        std::vector<const L1Node*> roots;
         auto* input = AddNode(L2NodeKind::Input, declaration.GetLocation(), "");
         auto* output = AddNode(L2NodeKind::Output, declaration.GetLocation(), "");
 
@@ -78,6 +78,7 @@ namespace flowx::semantic
             L2NodeKind kind;
             switch (node.kind)
             {
+                case L1NodeKind::Constant: kind = L2NodeKind::Constant; break;
                 case L1NodeKind::Call: kind = L2NodeKind::Call; break;
                 case L1NodeKind::Merge: kind = node.isEntry ? L2NodeKind::EmptyInput : L2NodeKind::Merge; break;
                 case L1NodeKind::Split: kind = L2NodeKind::Split; break;
@@ -88,11 +89,12 @@ namespace flowx::semantic
                 default: throw SemanticError(node.location, "Invalid L1 node kind");
             }
             auto* created = AddNode(kind, node.location, node.identifier);
+            created->constant = node.constant;
             if (kind == L2NodeKind::Split || kind == L2NodeKind::Distribution)
                 created->outputCount = node.edges.size();
             nodes.emplace(&node, created);
-            if (kind == L2NodeKind::EmptyInput)
-                emptyInputs.push_back(&node);
+            if (kind == L2NodeKind::EmptyInput || kind == L2NodeKind::Constant)
+                roots.push_back(&node);
         }
 
         const auto& inputs = declaration.GetInputs();
@@ -109,7 +111,7 @@ namespace flowx::semantic
                     Connect(input, output, outputIndex, inputIndex);
         }
 
-        for (const auto* node : emptyInputs)
+        for (const auto* node : roots)
         {
             visited.insert(node);
             for (const auto& edge : node->edges)

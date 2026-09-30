@@ -364,12 +364,11 @@ namespace flowx::semantic
     {
         const auto& structs = model.structs;
         std::vector<TypeName> types = {
-            { TypeReferenceKind::Int4, "i4" },
-            { TypeReferenceKind::Int8, "i8" },
-            { TypeReferenceKind::Float4, "f4" },
-            { TypeReferenceKind::Float8, "f8" },
-            { TypeReferenceKind::Bool, "b" },
-            { TypeReferenceKind::Char, "c" }
+            { TypeReferenceKind::Int4, "int4" },
+            { TypeReferenceKind::Int8, "int8" },
+            { TypeReferenceKind::Float4, "float4" },
+            { TypeReferenceKind::Float8, "float8" },
+            { TypeReferenceKind::Bool, "bool" }
         };
 
         for (const auto& definition : structs)

@@ -1,22 +1,10 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "CodeGenerator.h"
 
 namespace flowx::codegenerator
 {
     CodeGeneratorError::CodeGeneratorError(const std::string& message) : std::runtime_error(message)
     {
-    }
-
-    namespace
-    {
-        constexpr TypeReferenceKind primitiveTypes[] = {
-            TypeReferenceKind::Int4,
-            TypeReferenceKind::Int8, 
-            TypeReferenceKind::Float4, 
-            TypeReferenceKind::Float8,
-            TypeReferenceKind::Bool,
-            TypeReferenceKind::Char
-        };
     }
 
     CodeGenerator::CodeGenerator(const semantic::SemanticModel& model) : model_(model)
@@ -45,9 +33,6 @@ namespace flowx::codegenerator
                 break;
             case TypeReferenceKind::Bool:
                 typeName = "i1";
-                break;
-            case TypeReferenceKind::Char:
-                typeName = "i8";
                 break;
             default:
                 typeName = type.lexeme;
@@ -91,32 +76,56 @@ namespace flowx::codegenerator
 
     void CodeGenerator::GenerateTypes(std::ostream& output) const
     {
-        for (const auto& primitive : primitiveTypes)
-        {
-            WriteVariants(output, primitive, "");
-            output << '\n';
-        }
-
-        for (const auto& definition : model_.structs)
-        {
-            output << TypeName({ TypeReferenceKind::Named, definition.name }) << " = type { ";
-            for (std::size_t index = 0; index < definition.fields.size(); ++index)
-            {
-                if (index != 0) output << ", ";
-                output << TypeName(definition.fields[index].type);
-            }
-
-            output << " }\n";
-            WriteVariants(output, TypeReferenceKind::Named, definition.name);
-            output << '\n';
-        }
+        // 사용하는 타입을 생성
+        std::map<std::string, bool> generatedTypes;
+        for (const auto& graph : model_.l4Graphs)
+            for (const auto& node : graph->GetNodes())
+                if (node.type)
+                    WriteType(output, *node.type, true, generatedTypes);
     }
 
-    void CodeGenerator::WriteVariants(std::ostream& output, const TypeReferenceKind& typeKind, const std::string& lexeme) const
+    void CodeGenerator::WriteType(std::ostream& output, const TypeReference& type, bool isList, std::map<std::string, bool>& generatedTypes) const
     {
-        const std::string baseType = TypeName({ typeKind, lexeme, TypeModifierKind::None });
-        output << TypeName({ typeKind, lexeme, TypeModifierKind::Nullable }) << " = type { i1, " << baseType << " }\n";
-        output << TypeName({ typeKind, lexeme, TypeModifierKind::Errorable }) << " = type { i1, " << baseType << " }\n";
-        output << TypeName({ typeKind, lexeme, TypeModifierKind::NullErrorable }) << " = type { i1, i1, " << baseType << " }\n";
+        const auto baseName = TypeName(type);
+        const auto name = isList ? "%flowx.list." + (baseName.starts_with("%flowx.") ? baseName.substr(7) : baseName) : baseName;
+        if (!generatedTypes.emplace(name, isList).second)
+            return;
+
+        if (isList)
+        {
+            WriteType(output, type, false, generatedTypes);
+            output << name << " = type { ptr, i64 }\n";
+            return;
+        }
+
+        if (type.modifier != TypeModifierKind::None)
+        {
+            const TypeReference base = { type.kind, type.lexeme, TypeModifierKind::None };
+            WriteType(output, base, false, generatedTypes);
+            output << name << " = type { i1, ";
+            if (type.modifier == TypeModifierKind::NullErrorable)
+                output << "i1, ";
+            output << TypeName(base) << " }\n";
+            return;
+        }
+
+        if (type.kind != TypeReferenceKind::Named)
+            return;
+
+        semantic::Symbol symbol;
+        if (!model_.symbols.Find(type.lexeme, symbol) || symbol.kind != semantic::SymbolKind::Struct)
+            throw CodeGeneratorError("Invalid structure type '" + type.lexeme + "'");
+
+        const auto& definition = model_.structs.at(symbol.definitionIndex);
+        for (const auto& field : definition.fields)
+            WriteType(output, field.type, false, generatedTypes);
+
+        output << name << " = type { ";
+        for (std::size_t index = 0; index < definition.fields.size(); ++index)
+        {
+            if (index != 0) output << ", ";
+            output << TypeName(definition.fields[index].type);
+        }
+        output << " }\n";
     }
 }

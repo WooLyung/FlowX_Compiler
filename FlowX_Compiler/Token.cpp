@@ -49,6 +49,16 @@ namespace flowx
                 return "Ellipsis";
             case TokenKind::Dot:
                 return "Dot";
+            case TokenKind::BoolLiteral:
+                return "BoolLiteral";
+            case TokenKind::Int4Literal:
+                return "Int4Literal";
+            case TokenKind::Int8Literal:
+                return "Int8Literal";
+            case TokenKind::Float4Literal:
+                return "Float4Literal";
+            case TokenKind::Float8Literal:
+                return "Float8Literal";
             case TokenKind::EndOfFile:     
                 return "EndOfFile";
         }

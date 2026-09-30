@@ -4,7 +4,7 @@
 namespace flowx
 {
     inline constexpr std::string_view PrimitiveTypeNames[] = {
-        "i4", "i8", "f4", "f8", "b", "c"
+        "int4", "int8", "float4", "float8", "bool"
     };
 
     constexpr bool IsPrimitiveType(std::string_view name) noexcept

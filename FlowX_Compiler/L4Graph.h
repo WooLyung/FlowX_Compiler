@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "TypeReference.h"
 #include "Token.h"
+#include "ConstantValue.h"
 
 namespace flowx::semantic
 {
@@ -11,7 +12,7 @@ namespace flowx::semantic
 
     enum class L4NodeKind
     {
-        Input, Output, Call, MemberAccess, BuiltinCall, Construct, Value
+        Input, Output, Call, MemberAccess, BuiltinCall, Construct, Value, Constant
     };
 
     struct L4Edge
@@ -31,6 +32,7 @@ namespace flowx::semantic
         std::size_t index = 0;
 
         const L4Graph* function = nullptr;
+        ConstantValue constant;
     };
 
     class L4Graph

@@ -81,6 +81,13 @@ namespace flowx::semantic
             std::vector<L4Node*> results;
             switch (node->kind)
             {
+                case L3NodeKind::Constant:
+                {
+                    auto* value = AddNode(L4NodeKind::Constant, node->location, node->id, *types.at(0));
+                    value->constant = node->constant;
+                    results.push_back(value);
+                    break;
+                }
                 case L3NodeKind::Input:
                 case L3NodeKind::Output:
                     for (std::size_t index = 0; index < types.size(); ++index)

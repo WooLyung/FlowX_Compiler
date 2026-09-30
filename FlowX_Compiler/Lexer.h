@@ -22,6 +22,7 @@ namespace flowx::lexer
         void Advance();
         void SkipWhitespace();
         Token ReadIdentifier();
+        Token ReadNumber();
         Token NextToken();
 
         std::string source_;

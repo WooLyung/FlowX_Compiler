@@ -111,6 +111,13 @@ namespace flowx::semantic
     {
         const auto location = entry.GetLocation();
 
+        if (entry.IsConstant())
+        {
+            auto* node = AddNode(L1NodeKind::Constant, location);
+            node->constant = entry.GetConstant();
+            return node;
+        }
+
         if (entry.IsTerminal())
         {
             const auto& name = entry.GetIdentifier();

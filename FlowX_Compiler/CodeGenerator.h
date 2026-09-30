@@ -16,10 +16,8 @@ namespace flowx::codegenerator
         const semantic::SemanticModel& model_;
 
         const std::string TypeName(const TypeReference type) const;
-        void WriteVariants(std::ostream& output, const TypeReferenceKind& typeKind, const std::string& lexeme) const;
-
+        void WriteType(std::ostream& output, const TypeReference& type, bool isList, std::map<std::string, bool>& generatedTypes) const;
         void GenerateTypes(std::ostream& output) const;
-
 
     public:
         CodeGenerator(const semantic::SemanticModel& model);

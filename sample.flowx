@@ -1,47 +1,47 @@
 struct Vector3 {
-    x: i4, y: f4, z: f4?, a: i4?
+    x: int4, y: float4, z: float4?, a: int4?
 }
 
 struct IntPair {
-    first: i4, second: i4
+    first: int4, second: int4
 }
 
 class Addable<T> {
-    fn add(T) -> (T);
+    fn add(T, T) -> (T);
 }
 
 class Test<T> {
-    fn hello(T, T, b) -> (b);
+    fn hello(T, T, bool) -> (bool);
 }
 
-fn triple(value: i4) -> (first: i4, second: i4, third: i4) {
+fn triple(value: int4) -> (first: int4, second: int4, third: int4) {
     value as first;
     value as second;
     value as third;
 }
 
-fn swap(left: i4, right: i4) -> (first: i4, second: i4) {
+fn swap(left: int4, right: int4) -> (first: int4, second: int4) {
     right as first;
     left as second;
 }
 
-fn makePair(left: i4, right: i4) -> (result: IntPair) {
+fn makePair(left: int4, right: int4) -> (result: IntPair) {
     (left, right) -> IntPair as result;
 }
 
-fn firstOf(left: i4, right: i4) -> (result: i4) {
+fn firstOf(left: int4, right: int4) -> (result: int4) {
     (left, right) -> makePair.first as result;
 }
 
-fn middleOf(value: i4) -> (result: i4) {
+fn middleOf(value: int4) -> (result: int4) {
     value -> triple as (_, middle, _);
     middle as result;
 }
 
-fn main(x: i4, y: i4) -> (first: i4, second: i4, third: i4) {
+fn main(x: int4, y: int4) -> (first: int4, second: int4, third: int4) {
     x -> triple ... { pass, _, pass } -> swap as Values as (left, right) -> pass;
     Values -> { makePair, makePair } as (pairA, pairB);
     pairA.first -> pass as first;
     (pairB.second, y) -> firstOf as second;
-    y -> middleOf as third;
+    (y, 5) -> add -> middleOf as third;
 }

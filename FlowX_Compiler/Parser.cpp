@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Parser.h"
 #include "EntryNode.h"
+#include <charconv>
 
 namespace flowx::parser
 {
@@ -157,18 +158,16 @@ namespace flowx::parser
         const std::string lexeme = Peek().lexeme;
         Expect(TokenKind::PrimitiveType);
 
-        if (lexeme == "i4")
+        if (lexeme == "int4")
             return TypeReferenceKind::Int4;
-        if (lexeme == "i8")
+        if (lexeme == "int8")
             return TypeReferenceKind::Int8;
-        if (lexeme == "f4")
+        if (lexeme == "float4")
             return TypeReferenceKind::Float4;
-        if (lexeme == "f8")
+        if (lexeme == "float8")
             return TypeReferenceKind::Float8;
-        if (lexeme == "b")
+        if (lexeme == "bool")
             return TypeReferenceKind::Bool;
-        if (lexeme == "c")
-            return TypeReferenceKind::Char;
         throw ParserError(Peek().location,
             "Expected primitive type, got '"
             + std::string(lexeme) + "'");
@@ -276,6 +275,42 @@ namespace flowx::parser
 
         if (Peek().kind == TokenKind::Identifier)
             return std::make_unique<EntryNode>(location, Identifier());
+
+        const auto number = [&](auto value)
+        {
+            const auto& token = Peek();
+            const bool wide = token.kind == TokenKind::Int8Literal || token.kind == TokenKind::Float8Literal;
+            if (token.lexeme.empty() || (wide && token.lexeme.back() != 'l'))
+                throw ParserError(location, "Invalid numeric literal");
+            const auto* first = token.lexeme.data();
+            const auto* last = first + token.lexeme.size() - (wide ? 1 : 0);
+            const auto result = std::from_chars(first, last, value);
+            if (result.ec != std::errc{} || result.ptr != last)
+                throw ParserError(location, "Numeric literal cannot be represented as its declared type");
+            Expect(token.kind);
+            return std::make_unique<EntryNode>(location, ConstantValue{ value });
+        };
+        switch (Peek().kind)
+        {
+            case TokenKind::BoolLiteral:
+            {
+                if (Peek().lexeme != "true" && Peek().lexeme != "false")
+                    throw ParserError(location, "Invalid boolean literal");
+                const bool value = Peek().lexeme == "true";
+                Expect(TokenKind::BoolLiteral);
+                return std::make_unique<EntryNode>(location, ConstantValue{ value });
+            }
+            case TokenKind::Int4Literal:
+                return number(std::int32_t{});
+            case TokenKind::Int8Literal:
+                return number(std::int64_t{});
+            case TokenKind::Float4Literal:
+                return number(float{});
+            case TokenKind::Float8Literal:
+                return number(double{});
+            default:
+                break;
+        }
 
         std::vector<std::unique_ptr<ExpressionNode>> expressions;
         Expect(TokenKind::LeftParen);

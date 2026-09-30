@@ -145,6 +145,7 @@
     <ClInclude Include="ClassDeclarationNode.h" />
     <ClCompile Include="ClassDeclarationNode.cpp" />
     <ClInclude Include="EntryNode.h" />
+    <ClInclude Include="ConstantValue.h" />
     <ClCompile Include="EntryNode.cpp" />
     <ClCompile Include="FieldNode.cpp" />
     <ClInclude Include="FieldNode.h" />

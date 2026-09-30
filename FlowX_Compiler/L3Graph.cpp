@@ -26,6 +26,7 @@ namespace flowx::semantic
         for (const auto& node : graph.GetNodes())
         {
             nodes_.push_back({ static_cast<L3NodeKind>(node.kind), node.location, node.id, {}, {} });
+            nodes_.back().constant = node.constant;
             nodes.emplace(&node, &nodes_.back());
             remaining.emplace(&node, 0);
         }
@@ -81,6 +82,40 @@ namespace flowx::semantic
 
     void L3Graph::InferNode(L3Node& node, const L2Node& original, TypeTuple inputs, const FunctionOverloadDefinition& definition, SemanticAnalyzer& analyzer, SemanticModel& model)
     {
+        if (node.kind == L3NodeKind::Constant)
+        {
+            TypeReferenceKind kind;
+            std::string name;
+            if (std::holds_alternative<bool>(node.constant))
+            {
+                kind = TypeReferenceKind::Bool;
+                name = "bool";
+            }
+            else if (std::holds_alternative<std::int32_t>(node.constant))
+            {
+                kind = TypeReferenceKind::Int4;
+                name = "int4";
+            }
+            else if (std::holds_alternative<std::int64_t>(node.constant))
+            {
+                kind = TypeReferenceKind::Int8;
+                name = "int8";
+            }
+            else if (std::holds_alternative<float>(node.constant))
+            {
+                kind = TypeReferenceKind::Float4;
+                name = "float4";
+            }
+            else if (std::holds_alternative<double>(node.constant))
+            {
+                kind = TypeReferenceKind::Float8;
+                name = "float8";
+            }
+            else
+                throw SemanticError(node.location, "Constant node has no value");
+            node.types.elements.emplace_back(TypeReference{ kind, name, TypeModifierKind::None });
+            return;
+        }
         if (node.kind == L3NodeKind::Input)
         {
             for (const auto& type : inputs_)

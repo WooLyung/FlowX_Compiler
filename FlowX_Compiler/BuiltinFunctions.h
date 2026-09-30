@@ -8,9 +8,9 @@ namespace flowx::semantic
         static const std::vector<FunctionDefinition> functions = {
             { "add", {}, {
                 { {}, std::nullopt,
-                    { { "left", { TypeReferenceKind::Int4, "i4", TypeModifierKind::None } },
-                      { "right", { TypeReferenceKind::Int4, "i4", TypeModifierKind::None } } },
-                    { { "result", { TypeReferenceKind::Int4, "i4", TypeModifierKind::None } } } }
+                    { { "left", { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } },
+                      { "right", { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } } },
+                    { { "result", { TypeReferenceKind::Int4, "int4", TypeModifierKind::None } } } }
             } }
         };
         return functions;

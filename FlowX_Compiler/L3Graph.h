@@ -13,7 +13,7 @@ namespace flowx::semantic
 
     enum class L3NodeKind
     {
-        Input, Output, EmptyInput, Call, Merge, Split, Broadcast, Distribution, MemberAccess, Discard, BuiltinCall, Construct
+        Input, Output, EmptyInput, Call, Merge, Split, Broadcast, Distribution, MemberAccess, Discard, Constant, BuiltinCall, Construct
     };
 
     struct L3Edge
@@ -31,6 +31,7 @@ namespace flowx::semantic
         std::vector<L3Edge> edges;
         TypeTuple types;
         const L3Graph* function = nullptr;
+        ConstantValue constant;
     };
 
     class L3Graph
