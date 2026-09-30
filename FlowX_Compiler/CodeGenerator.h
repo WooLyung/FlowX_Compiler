@@ -19,6 +19,7 @@ namespace flowx::codegenerator
         void WriteType(std::ostream& output, const TypeReference& type, bool isList, std::map<std::string, bool>& generatedTypes) const;
         void GenerateTypes(std::ostream& output) const;
         void GenerateBuiltinFunctions(std::ostream& output) const;
+        void GenerateFunctionReturnTypes(std::ostream& output) const;
 
     public:
         CodeGenerator(const semantic::SemanticModel& model);

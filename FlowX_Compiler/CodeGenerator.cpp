@@ -64,6 +64,7 @@ namespace flowx::codegenerator
         std::ostringstream ir;
 
         GenerateTypes(ir);
+        GenerateFunctionReturnTypes(ir);
         GenerateBuiltinFunctions(ir);
 
         const std::string text = ir.str();
@@ -76,10 +77,57 @@ namespace flowx::codegenerator
             throw CodeGeneratorError("Failed to write LLVM output file: " + outputPath.string());
     }
 
+    void CodeGenerator::GenerateFunctionReturnTypes(std::ostream& output) const
+    {
+        for (std::size_t index = 0; index < model_.l4Graphs.size(); ++index)
+        {
+            const auto& graph = *model_.l4Graphs[index];
+            std::map<std::size_t, std::string> outputs;
+            for (const auto& node : graph.GetNodes())
+                if (node.kind == semantic::L4NodeKind::Output)
+                {
+                    const auto name = TypeName(node.type.value());
+                    outputs.emplace(node.index, "%flowx.list." + (name.starts_with("%flowx.") ? name.substr(7) : name));
+                }
+            std::map<std::size_t, std::string> inputs;
+            for (const auto& node : graph.GetNodes())
+                if (node.kind == semantic::L4NodeKind::Input)
+                {
+                    std::string name = node.type->lexeme;
+                    switch (node.type->modifier)
+                    {
+                        case TypeModifierKind::Nullable: name += ".nullable"; break;
+                        case TypeModifierKind::Errorable: name += ".errorable"; break;
+                        case TypeModifierKind::NullErrorable: name += ".nullerrorable"; break;
+                        default: break;
+                    }
+                    inputs.emplace(node.index, std::move(name));
+                }
+            output << "%flowx.return.user." << model_.functions[graph.GetFunctionIndex()].name;
+            for (const auto& [inputIndex, type] : inputs)
+                output << "." << type;
+            output << " = type { ";
+            bool first = true;
+            for (const auto& [outputIndex, type] : outputs)
+            {
+                if (!first) output << ", ";
+                output << type;
+                first = false;
+            }
+            output << " }\n";
+        }
+    }
+
     void CodeGenerator::GenerateBuiltinFunctions(std::ostream& output) const
     {
         // 사용하는 내장 함수를 생성
         const auto& builtins = GetBuiltinFunctions();
+
+        std::unordered_set<std::string> declarations;
+        for (const auto& builtin : model_.usedBuiltins)
+            for (const auto& declaration : builtins[builtin.functionIndex].overloads[builtin.overloadIndex].declarations)
+                if (declarations.insert(declaration).second)
+                    output << declaration << '\n';
 
         for (const auto& builtin : model_.usedBuiltins)
         {

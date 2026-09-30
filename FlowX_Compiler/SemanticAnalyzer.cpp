@@ -132,6 +132,12 @@ namespace flowx::semantic
             throw SemanticError(function.location, "Entry function 'main' must have exactly one overload");
 
         const auto& definition = function.overloads.front();
+        for (const auto& input : definition.inputs)
+        {
+            if (input.type.modifier != TypeModifierKind::Errorable && input.type.modifier != TypeModifierKind::NullErrorable)
+                throw SemanticError(definition.location, "Input parameter '" + input.identifier + "' of 'main' must be errorable");
+        }
+
         for (const auto* parameters : { &definition.inputs, &definition.outputs })
         {
             for (const auto& parameter : *parameters)

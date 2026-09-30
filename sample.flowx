@@ -1,47 +1,59 @@
-struct Vector3 {
-    x: int4, y: float4, z: float4?, a: int4?
+// All inputs from a file are errorable. Recover them before plain arithmetic.
+struct Pair {
+    whole: int4, fraction: float4
 }
 
-struct IntPair {
-    first: int4, second: int4
+fn combine(left: int4, right: int4) -> (result: int4) {
+    (left, right) -> add as result;
 }
 
-class Addable<T> {
-    fn add(T, T) -> (T);
-}
+fn main(rawInt: int4!, rawFloat: float4!, maybeInt: int4?!, maybeFloat: float4?!)
+    -> (whole: int4, fraction: float4, logic: bool, recoveredInt: int4, recoveredFloat: float4) {
+    // Error recovery, then null recovery: ?! -> ? -> plain.
+    (rawInt, 10) -> errorToValue as x;
+    (rawFloat, 1.5) -> errorToValue as y;
+    (maybeInt, 20) -> errorToValue as optionalInt;
+    (maybeFloat, 2.5) -> errorToValue as optionalFloat;
+    (optionalInt, 30) -> nullToValue as filledInt;
+    (optionalFloat, 3.5) -> nullToValue as filledFloat;
 
-class Test<T> {
-    fn hello(T, T, bool) -> (bool);
-}
+    // Null recovery first: ?! -> !, then error recovery.
+    (maybeInt, 40) -> nullToValue as checkedInt;
+    (maybeFloat, 4.5) -> nullToValue as checkedFloat;
+    (checkedInt, 50) -> errorToValue as recoveredInt;
+    (checkedFloat, 5.5) -> errorToValue as recoveredFloat;
 
-fn triple(value: int4) -> (first: int4, second: int4, third: int4) {
-    value as first;
-    value as second;
-    value as third;
-}
+    // Arithmetic on both supported types.
+    (x, 2) -> combine as addedInt;
+    (addedInt, 1) -> subtract as subtractedInt;
+    (subtractedInt, 3) -> multiply as intResult;
+    (y, 2.0) -> add as addedFloat;
+    (addedFloat, 1.0) -> subtract as subtractedFloat;
+    (subtractedFloat, 3.0) -> multiply as floatResult;
 
-fn swap(left: int4, right: int4) -> (first: int4, second: int4) {
-    right as first;
-    left as second;
-}
+    // Boolean operators and comparisons; false < true.
+    (true, false) -> and as both;
+    (both, true) -> or -> not as inverted;
+    (false, true) -> less as smaller;
+    (true, true) -> lessEqual as atMost;
+    (smaller, atMost) -> equal as same;
+    (inverted, same) -> or as logic;
 
-fn makePair(left: int4, right: int4) -> (result: IntPair) {
-    (left, right) -> IntPair as result;
-}
+    // Successful assertions can be unwrapped by panic.
+    (intResult, true) -> assert -> panic as safeInt;
+    (floatResult, true) -> assert -> panic as safeFloat;
+    (safeInt, safeFloat) -> Pair as pair;
+    pair.whole as whole;
+    pair.fraction as fraction;
 
-fn firstOf(left: int4, right: int4) -> (result: int4) {
-    (left, right) -> makePair.first as result;
-}
+    // Failed assertions are recovered rather than terminating this example.
+    ((filledInt, false) -> assert, 100) -> errorToValue;
+    ((filledFloat, false) -> assert, 100.0) -> errorToValue;
 
-fn middleOf(value: int4) -> (result: int4) {
-    value -> triple as (_, middle, _);
-    middle as result;
-}
+    // Also exercise nullable panic overloads. Error input terminates the program.
+    maybeInt -> panic;
+    maybeFloat -> panic;
 
-fn main(x: int4, y: int4) -> (first: int4, second: int4, third: int4) {
-    x -> triple ... { pass, _, pass } -> swap as Values as (left, right) -> pass;
-    Values -> { makePair, makePair } as (pairA, pairB);
-    pairA.first -> pass as first;
-    (pairB.second, y) -> firstOf as second;
-    (y, 5) -> add -> middleOf as third;
+    // Uncomment to deliberately trigger panic at runtime:
+    // (1, false) -> assert -> panic;
 }
