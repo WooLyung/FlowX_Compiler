@@ -2109,3 +2109,35 @@ allocationFailed:
     call void @llvm.trap()
     unreachable
 }
+
+define dllexport void @flowx_entry(ptr %inputs, i64 %length, ptr %outputs) {
+entry:
+    %inputSlot0 = getelementptr ptr, ptr %inputs, i64 0
+    %inputData0 = load ptr, ptr %inputSlot0
+    %inputPointer0 = insertvalue %flowx.list.primitive.i32.errorable poison, ptr %inputData0, 0
+    %input0 = insertvalue %flowx.list.primitive.i32.errorable %inputPointer0, i64 %length, 1
+    %inputSlot1 = getelementptr ptr, ptr %inputs, i64 1
+    %inputData1 = load ptr, ptr %inputSlot1
+    %inputPointer1 = insertvalue %flowx.list.primitive.float.errorable poison, ptr %inputData1, 0
+    %input1 = insertvalue %flowx.list.primitive.float.errorable %inputPointer1, i64 %length, 1
+    %inputSlot2 = getelementptr ptr, ptr %inputs, i64 2
+    %inputData2 = load ptr, ptr %inputSlot2
+    %inputPointer2 = insertvalue %flowx.list.primitive.i32.nullerrorable poison, ptr %inputData2, 0
+    %input2 = insertvalue %flowx.list.primitive.i32.nullerrorable %inputPointer2, i64 %length, 1
+    %inputSlot3 = getelementptr ptr, ptr %inputs, i64 3
+    %inputData3 = load ptr, ptr %inputSlot3
+    %inputPointer3 = insertvalue %flowx.list.primitive.float.nullerrorable poison, ptr %inputData3, 0
+    %input3 = insertvalue %flowx.list.primitive.float.nullerrorable %inputPointer3, i64 %length, 1
+    %outputSlot0 = getelementptr ptr, ptr %outputs, i64 0
+    %output0 = load ptr, ptr %outputSlot0
+    %outputSlot1 = getelementptr ptr, ptr %outputs, i64 1
+    %output1 = load ptr, ptr %outputSlot1
+    %outputSlot2 = getelementptr ptr, ptr %outputs, i64 2
+    %output2 = load ptr, ptr %outputSlot2
+    %outputSlot3 = getelementptr ptr, ptr %outputs, i64 3
+    %output3 = load ptr, ptr %outputSlot3
+    %outputSlot4 = getelementptr ptr, ptr %outputs, i64 4
+    %output4 = load ptr, ptr %outputSlot4
+    call %flowx.return.user.main.int4.errorable.float4.errorable.int4.nullerrorable.float4.nullerrorable @flowx.user.main.int4.errorable.float4.errorable.int4.nullerrorable.float4.nullerrorable(%flowx.list.primitive.i32.errorable %input0, %flowx.list.primitive.float.errorable %input1, %flowx.list.primitive.i32.nullerrorable %input2, %flowx.list.primitive.float.nullerrorable %input3, i64 %length, ptr %output0, ptr %output1, ptr %output2, ptr %output3, ptr %output4)
+    ret void
+}

@@ -69,6 +69,7 @@ namespace flowx::codegenerator
         GenerateFunctionReturnTypes(ir);
         GenerateBuiltinFunctions(ir);
         GenerateFunctions(ir);
+        GenerateEntryPoint(ir);
 
         const std::string text = ir.str();
         std::ofstream output(outputPath, std::ios::binary | std::ios::trunc);
@@ -422,6 +423,49 @@ namespace flowx::codegenerator
                 output << "\nallocationFailed:\n    call void @llvm.trap()\n    unreachable\n";
             output << "}\n";
         }
+    }
+
+    void CodeGenerator::GenerateEntryPoint(std::ostream& output) const
+    {
+        for (const auto& graph : model_.l4Graphs)
+        {
+            if (model_.functions.at(graph->GetFunctionIndex()).name != "main")
+                continue;
+
+            std::map<std::size_t, const TypeReference*> inputs;
+            std::map<std::size_t, const TypeReference*> outputs;
+            for (const auto& node : graph->GetNodes())
+            {
+                if (node.kind == semantic::L4NodeKind::Input)
+                    inputs.emplace(node.index, &node.type.value());
+                if (node.kind == semantic::L4NodeKind::Output)
+                    outputs.emplace(node.index, &node.type.value());
+            }
+
+            output << "\ndefine dllexport void @flowx_entry(ptr %inputs, i64 %length, ptr %outputs) {\nentry:\n";
+            for (const auto& [index, type] : inputs)
+            {
+                const auto listType = ListTypeName(*type);
+                output << "    %inputSlot" << index << " = getelementptr ptr, ptr %inputs, i64 " << index << "\n"
+                       << "    %inputData" << index << " = load ptr, ptr %inputSlot" << index << "\n"
+                       << "    %inputPointer" << index << " = insertvalue " << listType << " poison, ptr %inputData" << index << ", 0\n"
+                       << "    %input" << index << " = insertvalue " << listType << " %inputPointer" << index << ", i64 %length, 1\n";
+            }
+            for (const auto& [index, type] : outputs)
+                output << "    %outputSlot" << index << " = getelementptr ptr, ptr %outputs, i64 " << index << "\n"
+                       << "    %output" << index << " = load ptr, ptr %outputSlot" << index << "\n";
+
+            const auto name = FunctionName(*graph);
+            output << "    call %flowx.return." << name << " @flowx." << name << "(";
+            for (const auto& [index, type] : inputs)
+                output << ListTypeName(*type) << " %input" << index << ", ";
+            output << "i64 %length";
+            for (const auto& [index, type] : outputs)
+                output << ", ptr %output" << index;
+            output << ")\n    ret void\n}\n";
+            return;
+        }
+        throw CodeGeneratorError("Entry function 'main' has no L4 graph");
     }
 
     void CodeGenerator::GenerateTypes(std::ostream& output) const
